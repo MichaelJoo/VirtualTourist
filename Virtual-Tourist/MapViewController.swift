@@ -31,7 +31,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.handleTap(gestureRecognizer:)))
     
         gestureRecognizer.numberOfTapsRequired = 1
-        gestureRecognizer.minimumPressDuration = 1.5
         gestureRecognizer.delegate = self
         mapView.addGestureRecognizer(gestureRecognizer)
         
