@@ -18,6 +18,8 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
     
     @IBOutlet weak var mapView: MKMapView!
     
+    var dataController: DataController!
+    
     let locationManager = CLLocationManager()
     let regioninMeters: Double = 10000
     let places = CLLocation()
@@ -28,9 +30,9 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         
-        let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.handleTap(gestureRecognizer:)))
-    
-        gestureRecognizer.numberOfTapsRequired = 1
+        let gestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(self.handleTap(gestureRecognizer:)))
+        
+        gestureRecognizer.minimumPressDuration = 1.5
         gestureRecognizer.delegate = self
         mapView.addGestureRecognizer(gestureRecognizer)
         
@@ -92,12 +94,16 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         case .authorizedAlways:
             break
             
+        @unknown default:
+            fatalError()
+            break
         }
     }
     
     @objc func handleTap(gestureRecognizer: UILongPressGestureRecognizer) {
         
-        gestureRecognizer.minimumPressDuration = 1.5
+        if gestureRecognizer.state == UIGestureRecognizer.State.ended {
+        
         let location = gestureRecognizer.location(in: mapView)
         let coordinate = mapView.convert(location, toCoordinateFrom: mapView)
         
@@ -105,6 +111,25 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         let annotation = MKPointAnnotation()
         annotation.coordinate = coordinate
         mapView.addAnnotation(annotation)
+        
+        //Add annotation to Pin Data model
+            
+        addPin(annotation: annotation)
+            
+        }
+        
+    }
+    
+    func addPin(annotation: MKPointAnnotation) {
+        
+        let pinData = Pin(context: dataController.viewContext)
+        
+        annotation.coordinate = CLLocationCoordinate2DMake(pinData.latitude, pinData.longitude)
+        try? dataController.viewContext.save()
+        
+        print(pinData.latitude)
+        print(pinData.longitude)
+    
     }
 
 }

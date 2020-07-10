@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8F32E6FE24B2261B00C9207B /* DataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F32E6FD24B2261B00C9207B /* DataController.swift */; };
 		8F38CF9324A2408400DCE871 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F38CF9224A2408300DCE871 /* MapKit.framework */; };
 		8F38CF9724A240E300DCE871 /* CustomPinAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F38CF9624A240E300DCE871 /* CustomPinAnnotation.swift */; };
 		8FF37C1A249542F200594F13 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FF37C19249542F200594F13 /* AppDelegate.swift */; };
@@ -38,6 +39,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		8F32E6FD24B2261B00C9207B /* DataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataController.swift; sourceTree = "<group>"; };
 		8F38CF9224A2408300DCE871 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		8F38CF9624A240E300DCE871 /* CustomPinAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomPinAnnotation.swift; sourceTree = "<group>"; };
 		8FF37C16249542F200594F13 /* Virtual-Tourist.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Virtual-Tourist.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -118,6 +120,7 @@
 				8FF37C19249542F200594F13 /* AppDelegate.swift */,
 				8FF37C1B249542F200594F13 /* SceneDelegate.swift */,
 				8FF37C1D249542F200594F13 /* MapViewController.swift */,
+				8F32E6FD24B2261B00C9207B /* DataController.swift */,
 				8F38CF9624A240E300DCE871 /* CustomPinAnnotation.swift */,
 				8FF37C1F249542F200594F13 /* Main.storyboard */,
 				8FF37C25249542F600594F13 /* Assets.xcassets */,
@@ -209,7 +212,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1150;
-				LastUpgradeCheck = 1150;
+				LastUpgradeCheck = 1200;
 				ORGANIZATIONNAME = "Do Hyung Joo";
 				TargetAttributes = {
 					8FF37C15249542F200594F13 = {
@@ -278,6 +281,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8F38CF9724A240E300DCE871 /* CustomPinAnnotation.swift in Sources */,
+				8F32E6FE24B2261B00C9207B /* DataController.swift in Sources */,
 				8FF37C24249542F200594F13 /* Virtual_Tourist.xcdatamodeld in Sources */,
 				8FF37C1E249542F200594F13 /* MapViewController.swift in Sources */,
 				8FF37C1A249542F200594F13 /* AppDelegate.swift in Sources */,
@@ -362,6 +366,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -422,6 +427,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -457,6 +463,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 5KQL8V98V9;
 				INFOPLIST_FILE = "Virtual-Tourist/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -475,6 +482,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 5KQL8V98V9;
 				INFOPLIST_FILE = "Virtual-Tourist/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
