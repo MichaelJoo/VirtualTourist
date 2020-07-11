@@ -20,10 +20,11 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
     
     var dataController: DataController!
     
+    var pinData: Pin!
+    
     let locationManager = CLLocationManager()
     let regioninMeters: Double = 10000
     let places = CLLocation()
-    
     
     
     override func viewDidLoad() {
