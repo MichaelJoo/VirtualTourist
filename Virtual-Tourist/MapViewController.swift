@@ -18,11 +18,10 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
     
     @IBOutlet weak var mapView: MKMapView!
     
-    var dataController: DataController!
-    
-    var pinData: Pin!
+    var dataController: DataController = DataController(modelName: "Virtual_Tourist")
     
     let locationManager = CLLocationManager()
+    let geoCoder = CLGeocoder()
     let regioninMeters: Double = 10000
     let places = CLLocation()
     
@@ -40,6 +39,8 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         mapView.delegate = self
         checkLocationServices()
         print("viewDidload")
+        
+        dataController.load()
         
     }
     
@@ -108,24 +109,59 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         let location = gestureRecognizer.location(in: mapView)
         let coordinate = mapView.convert(location, toCoordinateFrom: mapView)
         
+
         // Add annotation:
         let annotation = MKPointAnnotation()
         annotation.coordinate = coordinate
         mapView.addAnnotation(annotation)
+            
         
         //Add annotation to Pin Data model
-            
         addPin(annotation: annotation)
-            
+        
         }
         
     }
     
+
+    func findAddress(annotation: MKPointAnnotation) {
+        
+        let locationforAdress = CLLocation(latitude: annotation.coordinate.latitude, longitude: annotation.coordinate.longitude)
+        
+        geoCoder.reverseGeocodeLocation(locationforAdress, completionHandler: { (placemarks, error) -> Void in
+        
+            if (error) == nil {
+
+                // Place details
+                var placeMark: CLPlacemark!
+                placeMark = placemarks?[0]
+                
+                let country = placeMark.country! // addressDictionary!["Country"] as? String ?? " "
+                let city =  placeMark.subAdministrativeArea! // addressDictionary!["City"] as? String ?? " "
+                let street = placeMark.thoroughfare! // addressDictionary!["Street"] as? String ?? " "
+                let postalCode = placeMark.postalCode! // addressDictionary!["Country"] as? String ?? " "
+            
+                let address = "\(placeMark?.country ?? ""),\(placeMark?.subAdministrativeArea ?? ""), \(placeMark?.thoroughfare ?? ""), \(placeMark?.postalCode ?? "")"
+                
+                annotation.title = address
+                
+                }
+            }
+        )
+    }
+    
     func addPin(annotation: MKPointAnnotation) {
         
+        //Assign placemark as title of created Pin data
+        findAddress(annotation: annotation)
+            
         let pinData = Pin(context: dataController.viewContext)
         
-        annotation.coordinate = CLLocationCoordinate2DMake(pinData.latitude, pinData.longitude)
+        pinData.title = annotation.title
+        pinData.subtitle = annotation.subtitle
+        pinData.latitude = annotation.coordinate.latitude
+        pinData.longitude = annotation.coordinate.longitude
+        
         try? dataController.viewContext.save()
         
         print(pinData.latitude)
@@ -166,16 +202,27 @@ extension MapViewController: CLLocationManagerDelegate {
             pinView!.animatesDrop = true
             pinView!.isDraggable = true
             pinView!.canShowCallout = true
+            pinView!.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
+        
             
         } else {
             
             pinView!.annotation = annotation
         }
-            
+        
+        
+        
         mapView.addAnnotation(pin)
         return pinView
 
     }
+    
+    func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
+        
+        print("pin tapped")
+        
+            
+        }
     
     func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, didChange newState: MKAnnotationView.DragState, fromOldState oldState: MKAnnotationView.DragState) {
         
@@ -196,6 +243,7 @@ extension MapViewController: CLLocationManagerDelegate {
         default: break
         }
     }
+    
 
 }
 
