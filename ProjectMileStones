@@ -1,0 +1,33 @@
+Virtual Tourist Project components
+
+1. Xcode Data model with pin and photo including CORE DATA relationships
+
+2. MapView/MapScreen that allows multiple pins to be dropped upon long press
+
+3. Saving newly created pins into Xcdatamodel
+
+4. Upon clicking pins, JSON POST request to retrieve/download photos based on cordinate information is made, based on Flicker API.
+
+    - this includes triggering the Search Photo API immediately after a pin is created
+    - this includes triggering the API to download photos when pin has no photos
+    - this includes displaying the initially downloaded photos when pin already has related photos in XCdatamodel
+    - this includes displaying "No Images" when API returns no photos
+    - this includes creation of class PhotoAlbumViewController
+
+5. Navigation to another another View/Screen that display small Mapview at the upper area and Collection View/PhotoAlbumViewController of photos.
+
+6. "NewCollection Button" that trigger refreshed Flicer API to download photos
+
+7. Functionality to update Pin cordinates upon drag and dropping existing pins to a new location
+
+8. Functionhality to trigger Search Photo Flicer API once drag and dropping of the pins are completed
+
+9. Functionality to remove photos in the CollectionView after user taps the photos and changes made to the photos are made persistent to the Xcdatamodel
+
+    - this includes storing images that allows "External Storage" option
+
+10. Back Navigation button
+
+11. UI Autolayout
+
+

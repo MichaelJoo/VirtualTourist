@@ -13,17 +13,37 @@ import CoreLocation
 import CoreData
 
 
-class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDelegate {
+class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDelegate, NSFetchedResultsControllerDelegate {
 
     
     @IBOutlet weak var mapView: MKMapView!
     
     var dataController: DataController = DataController(modelName: "Virtual_Tourist")
     
+    var fetchedResultsController: NSFetchedResultsController<Pin>!
+    
     let locationManager = CLLocationManager()
     let geoCoder = CLGeocoder()
     let regioninMeters: Double = 10000
     let places = CLLocation()
+    
+    fileprivate func setupFetchedResultsController() {
+        
+        let fetchRequest:NSFetchRequest<Pin> = Pin.fetchRequest()
+        
+        let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: false)
+        fetchRequest.sortDescriptors = [sortDescriptor]
+        
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "Pin")
+        fetchedResultsController.delegate = self
+        
+        do {
+            try fetchedResultsController.performFetch()
+        } catch {
+            fatalError("The fetched could not be executed: \(error.localizedDescription)")
+        }
+        
+    }
     
     
     override func viewDidLoad() {
@@ -40,8 +60,17 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         checkLocationServices()
         print("viewDidload")
         
+        setupFetchedResultsController()
+        
         dataController.load()
         
+        //when do we need to add fetchResultsController? Do we use it for all Xcdatamodel and model objects?
+        
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        fetchedResultsController = nil
     }
     
     override func didReceiveMemoryWarning() {
@@ -118,6 +147,8 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         
         //Add annotation to Pin Data model
         addPin(annotation: annotation)
+            
+        findAddress(annotation: annotation)
         
         }
         
@@ -136,11 +167,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
                 var placeMark: CLPlacemark!
                 placeMark = placemarks?[0]
                 
-                let country = placeMark.country! // addressDictionary!["Country"] as? String ?? " "
-                let city =  placeMark.subAdministrativeArea! // addressDictionary!["City"] as? String ?? " "
-                let street = placeMark.thoroughfare! // addressDictionary!["Street"] as? String ?? " "
-                let postalCode = placeMark.postalCode! // addressDictionary!["Country"] as? String ?? " "
-            
                 let address = "\(placeMark?.country ?? ""),\(placeMark?.subAdministrativeArea ?? ""), \(placeMark?.thoroughfare ?? ""), \(placeMark?.postalCode ?? "")"
                 
                 annotation.title = address
@@ -151,9 +177,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
     }
     
     func addPin(annotation: MKPointAnnotation) {
-        
-        //Assign placemark as title of created Pin data
-        findAddress(annotation: annotation)
             
         let pinData = Pin(context: dataController.viewContext)
         
@@ -161,11 +184,15 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         pinData.subtitle = annotation.subtitle
         pinData.latitude = annotation.coordinate.latitude
         pinData.longitude = annotation.coordinate.longitude
+        pinData.creationDate = Date()
         
         try? dataController.viewContext.save()
         
         print(pinData.latitude)
         print(pinData.longitude)
+        print(pinData.creationDate!)
+        print(pinData.self)
+
     
     }
 
@@ -210,19 +237,10 @@ extension MapViewController: CLLocationManagerDelegate {
             pinView!.annotation = annotation
         }
         
-        
-        
         mapView.addAnnotation(pin)
         return pinView
 
     }
-    
-    func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
-        
-        print("pin tapped")
-        
-            
-        }
     
     func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, didChange newState: MKAnnotationView.DragState, fromOldState oldState: MKAnnotationView.DragState) {
         
@@ -242,6 +260,12 @@ extension MapViewController: CLLocationManagerDelegate {
             view.dragState = .none
         default: break
         }
+    }
+    
+    func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
+        
+        //TBD to segue to PhotoAlbumView Controller
+    
     }
     
 
