@@ -64,7 +64,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         
         dataController.load()
         
-        //when do we need to add fetchResultsController? Do we use it for all Xcdatamodel and model objects?
         
     }
     
