@@ -11,7 +11,7 @@ import CoreData
 
 struct SearchPhotoResponse: Codable {
     
-    let photos: [Photos]
+    let photos: Photos
     let stat: String?
    
 }
@@ -21,7 +21,7 @@ struct Photos: Codable {
     let page: Int
     let pages: Int
     let perpage: Int
-    let total: Int
+    let total: String
     let photo: [Images]
 }
 

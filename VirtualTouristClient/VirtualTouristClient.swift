@@ -13,15 +13,18 @@ class VirtualTouristClient {
     
     var dataController: DataController = DataController(modelName: "Virtual_Tourist")
     
-    
     enum Endpoints {
         
         case SearchFlickerPhotos
+        case Base
         
         var StringValue: String {
             switch self {
             
-            case .SearchFlickerPhotos: return "https://www.flickr.com/services/api/flickr.photos.search.html"
+            case .Base: return
+                "https://www.flickr.com/services/rest/?method="
+            
+            case .SearchFlickerPhotos: return "flickr.photos.search"
             
             }
         }
@@ -63,19 +66,19 @@ class VirtualTouristClient {
             print(String(data: data!, encoding: .utf8)!)
     
             let decoder = JSONDecoder()
-            
-            do {
-                let responseObject = try decoder.decode(ResponseType.self, from: data!)
-                DispatchQueue.main.async {
-                    completion(responseObject, nil)
-                }
-            } catch {
-                print(error)
-                DispatchQueue.main.async {
-                    completion(nil, error)
-               }
                 
-            }
+                do {
+                   let responseObject = try decoder.decode(ResponseType.self, from: data!)
+                    DispatchQueue.main.async {
+                        completion(responseObject, nil)
+                    }
+                } catch {
+                    print(error)
+                    DispatchQueue.main.async {
+                        completion(nil, error)
+                   }
+                    
+                }
         
         }
         task.resume()
@@ -84,13 +87,16 @@ class VirtualTouristClient {
     
     class func SearchPhoto (longitude: Double, Latitude: Double, _ completion: @escaping (_ success: Bool, _ error: String?) -> Void) {
         
-        let pinData = Pin(context: dataController.viewContext)
+        let pinData = Pin(context: DataController.shared.viewContext)
         
-        let URL = Endpoints.SearchFlickerPhotos.url
-        let SearchRequest = SearchPhotoRequest(lat: <#T##Double#>, lon: <#T##Double#>)
+        let ApiURLAddress = Endpoints.Base.StringValue + Endpoints.SearchFlickerPhotos.StringValue + "&api_key=\(SearchPhotoRequest.api_key)" + "&lat=\(Latitude)" + "&lon=\(longitude)" + "&per_page=30&format=json&nojsoncallback=1"
+        
+        let SearchURL = URL(string:ApiURLAddress)!
+        
+        let SearchRequest = SearchPhotoRequest(lat: Latitude, lon: longitude)
         
        
-        taskforFlickerPOSTRequest(url: URL, responseType: SearchPhotoResponse.self, body: SearchRequest) { response, error in
+        taskforFlickerPOSTRequest(url: SearchURL, responseType: SearchPhotoResponse.self, body: SearchRequest) { response, error in
             
             if error == nil {
                 completion(true, nil)

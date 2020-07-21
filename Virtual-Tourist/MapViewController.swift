@@ -191,7 +191,16 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         print(pinData.longitude)
         print(pinData.creationDate!)
         print(pinData.self)
-
+        
+        VirtualTouristClient.SearchPhoto(longitude: pinData.longitude, Latitude: pinData.latitude) { (SearchPhotoResponse, error) in
+            
+            print("SearchPhoto API Executed")
+        
+        }
+        
+        let photoData = Photo(context: dataController.viewContext)
+        
+        
     
     }
 
@@ -264,6 +273,7 @@ extension MapViewController: CLLocationManagerDelegate {
     func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
         
         //TBD to segue to PhotoAlbumView Controller
+        
     
     }
     
