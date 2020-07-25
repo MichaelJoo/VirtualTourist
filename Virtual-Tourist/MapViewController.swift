@@ -21,6 +21,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
     var dataController: DataController = DataController(modelName: "Virtual_Tourist")
     
     var fetchedResultsController: NSFetchedResultsController<Pin>!
+
     
     let locationManager = CLLocationManager()
     let geoCoder = CLGeocoder()
@@ -35,6 +36,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         fetchRequest.sortDescriptors = [sortDescriptor]
         
         fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "Pin")
+        
         fetchedResultsController.delegate = self
         
         do {
@@ -70,6 +72,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         fetchedResultsController = nil
+
     }
     
     override func didReceiveMemoryWarning() {
@@ -177,7 +180,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
     
     func addPin(annotation: MKPointAnnotation) {
             
-        let pinData = Pin(context: dataController.viewContext)
+        let pinData = Pin(context: DataController.shared.viewContext)
         
         pinData.title = annotation.title
         pinData.subtitle = annotation.subtitle
@@ -185,22 +188,38 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         pinData.longitude = annotation.coordinate.longitude
         pinData.creationDate = Date()
         
-        try? dataController.viewContext.save()
+        try? DataController.shared.viewContext.save()
         
         print(pinData.latitude)
         print(pinData.longitude)
         print(pinData.creationDate!)
         print(pinData.self)
         
-        VirtualTouristClient.SearchPhoto(longitude: pinData.longitude, Latitude: pinData.latitude) { (SearchPhotoResponse, error) in
+        VirtualTouristClient.SearchPhoto(longitude: pinData.longitude, Latitude: pinData.latitude) { (photo, error) in
             
             print("SearchPhoto API Executed")
+            
+            for images in photo {
+            
+            let photoData = Photo(context: DataController.shared.viewContext)
+            
+            let flickerImageURLAddress = URL(string:"https://farm{\(images.farm)}.staticflickr.com/{\(images.server)}/{\(images.id)}_{\(images.secret)}_o.(jpg|gif|png)")!
+                
+            print(images.id)
+                
+            print(flickerImageURLAddress)
+
+            photoData.pin = pinData
+                
+            photoData.creationDate = pinData.creationDate
+                
+            try? DataController.shared.viewContext.save()
+            print(photoData)
+                
+            }
         
         }
-        
-        let photoData = Photo(context: dataController.viewContext)
-        
-        
+
     
     }
 

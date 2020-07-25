@@ -85,9 +85,7 @@ class VirtualTouristClient {
         
     }
     
-    class func SearchPhoto (longitude: Double, Latitude: Double, _ completion: @escaping (_ success: Bool, _ error: String?) -> Void) {
-        
-        let pinData = Pin(context: DataController.shared.viewContext)
+    class func SearchPhoto (longitude: Double, Latitude: Double, _ completion: @escaping ([Images], Error?) -> Void) {
         
         let ApiURLAddress = Endpoints.Base.StringValue + Endpoints.SearchFlickerPhotos.StringValue + "&api_key=\(SearchPhotoRequest.api_key)" + "&lat=\(Latitude)" + "&lon=\(longitude)" + "&per_page=30&format=json&nojsoncallback=1"
         
@@ -95,13 +93,14 @@ class VirtualTouristClient {
         
         let SearchRequest = SearchPhotoRequest(lat: Latitude, lon: longitude)
         
-       
+
         taskforFlickerPOSTRequest(url: SearchURL, responseType: SearchPhotoResponse.self, body: SearchRequest) { response, error in
             
             if error == nil {
-                completion(true, nil)
+                completion((response?.photos.photo)!, nil)
             } else {
-                completion(false, nil)
+                completion([], error)
+                print(error!)
             }
         }
     }
