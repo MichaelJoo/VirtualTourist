@@ -11,8 +11,6 @@ import CoreData
 
 class VirtualTouristClient {
     
-    var dataController: DataController = DataController(modelName: "Virtual_Tourist")
-    
     enum Endpoints {
         
         case SearchFlickerPhotos
@@ -87,7 +85,7 @@ class VirtualTouristClient {
     
     class func SearchPhoto (longitude: Double, Latitude: Double, _ completion: @escaping ([Images], Error?) -> Void) {
         
-        let ApiURLAddress = Endpoints.Base.StringValue + Endpoints.SearchFlickerPhotos.StringValue + "&api_key=\(SearchPhotoRequest.api_key)" + "&lat=\(Latitude)" + "&lon=\(longitude)" + "&per_page=30&format=json&nojsoncallback=1"
+        let ApiURLAddress = Endpoints.Base.StringValue + Endpoints.SearchFlickerPhotos.StringValue + "&api_key=\(SearchPhotoRequest.api_key)" + "&lat=\(Latitude)" + "&lon=\(longitude)" + "&page=3&per_page=30&format=json&nojsoncallback=1"
         
         let SearchURL = URL(string:ApiURLAddress)!
         

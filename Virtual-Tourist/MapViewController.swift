@@ -18,8 +18,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
     
     @IBOutlet weak var mapView: MKMapView!
     
-    var dataController: DataController = DataController(modelName: "Virtual_Tourist")
-    
     var fetchedResultsController: NSFetchedResultsController<Pin>!
 
     
@@ -35,7 +33,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: false)
         fetchRequest.sortDescriptors = [sortDescriptor]
         
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "Pin")
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: DataController.shared.viewContext, sectionNameKeyPath: nil, cacheName: "Pin")
         
         fetchedResultsController.delegate = self
         
@@ -63,8 +61,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         print("viewDidload")
         
         setupFetchedResultsController()
-        
-        dataController.load()
         
         
     }
@@ -195,29 +191,41 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         print(pinData.creationDate!)
         print(pinData.self)
         
-        VirtualTouristClient.SearchPhoto(longitude: pinData.longitude, Latitude: pinData.latitude) { (photo, error) in
-            
-            print("SearchPhoto API Executed")
-            
-            for images in photo {
-            
-            let photoData = Photo(context: DataController.shared.viewContext)
-            
-            let flickerImageURLAddress = URL(string:"https://farm{\(images.farm)}.staticflickr.com/{\(images.server)}/{\(images.id)}_{\(images.secret)}_o.(jpg|gif|png)")!
+       
+            VirtualTouristClient.SearchPhoto(longitude: pinData.longitude, Latitude: pinData.latitude) { (photo, error) in
                 
-            print(images.id)
+                print("SearchPhoto API Executed")
                 
-            print(flickerImageURLAddress)
+                if photo.count == 0 {
+                    
+                    let alertVC = UIAlertController(title: "No Images", message: "No Image to display", preferredStyle: .alert)
+                    self.present(alertVC, animated: true, completion: nil)
+                    
+                } else {
+                    
+                    for images in photo {
+                    
+                    let photoData = Photo(context: DataController.shared.viewContext)
+                    
+                    //let rawflickerImageURLAddress = "https://farm{\(images.farm)}.staticflickr.com/{\(images.server)}/{\(images.id)}_{\(images.secret)}.jpg"
+                        
+                    let flickerImageURLAddress = URL(string:"https://farm\(images.farm).staticflickr.com/\(images.server)/\(images.id)_\(images.secret).jpg")!
+                    
+                  
+                    print(images.id)
 
-            photoData.pin = pinData
-                
-            photoData.creationDate = pinData.creationDate
-                
-            try? DataController.shared.viewContext.save()
-            print(photoData)
-                
-            }
-        
+                    photoData.pin = pinData
+                        
+                    photoData.creationDate = pinData.creationDate
+                    photoData.imageURL = flickerImageURLAddress
+                        
+                    try? DataController.shared.viewContext.save()
+                    print(photoData)
+                    
+                    }
+                    
+                }
+ 
         }
 
     
@@ -293,9 +301,15 @@ extension MapViewController: CLLocationManagerDelegate {
         
         //TBD to segue to PhotoAlbumView Controller
         
+        let storyBoard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
+        let PhotoAlbumViewController = storyBoard.instantiateViewController(withIdentifier: "PhotoAlbumView") as! PhotoAlbumViewController
+        self.present(PhotoAlbumViewController, animated: true, completion: nil)
+        
+        //pass the parameters of the selected/clicked pin to PhotoAlbumViewController upon clicking on disclosure detail
+        let pintoPass = fetchedResultsController.object(at: IndexPath)
+        
     
     }
-    
 
 }
 

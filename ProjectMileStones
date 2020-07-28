@@ -16,7 +16,7 @@ Virtual Tourist Project components
 
 5. Navigation to another another View/Screen that display small Mapview at the upper area and Collection View/PhotoAlbumViewController of photos.
 
-6. "NewCollection Button" that trigger refreshed Flicer API to download photos
+6. "NewCollection Button" that trigger refreshed Flicker API to download photos
 
 7. Functionality to update Pin cordinates upon drag and dropping existing pins to a new location
 
