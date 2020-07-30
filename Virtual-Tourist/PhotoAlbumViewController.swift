@@ -13,9 +13,6 @@ import CoreData
 
 class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, NSFetchedResultsControllerDelegate {
     
-    @IBOutlet weak var PhotoMapView: MKMapView!
-    @IBOutlet weak var PhotoCollectionView: UICollectionView!
-    
     var pinData: Pin!
     
     var fetchedResultsController: NSFetchedResultsController<Photo>!
@@ -44,11 +41,6 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, NSFe
         
         setupFetchedResultsController()
         
-        PhotoCollectionView.delegate = self
-        PhotoCollectionView.reloadData()
-        
-        print(pinData!)
-        
     }
 
     
@@ -57,7 +49,5 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, NSFe
         fetchedResultsController = nil
 
     }
-    
-
     
 }

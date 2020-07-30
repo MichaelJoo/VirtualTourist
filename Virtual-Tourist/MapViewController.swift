@@ -306,7 +306,23 @@ extension MapViewController: CLLocationManagerDelegate {
         self.present(PhotoAlbumViewController, animated: true, completion: nil)
         
         //pass the parameters of the selected/clicked pin to PhotoAlbumViewController upon clicking on disclosure detail
-        let pintoPass = fetchedResultsController.object(at: IndexPath)
+        
+            let pins = fetchedResultsController.fetchedObjects
+                
+            let annotation = mapView.selectedAnnotations[0]
+                
+            guard let indexPath = pins!.firstIndex(where: { (pinData) -> Bool in
+                    
+                    pinData.latitude == annotation.coordinate.latitude && pinData.longitude == annotation.coordinate.longitude
+                    
+                }) else {
+                print("pin data not passed")
+                    return
+                }
+            
+            PhotoAlbumViewController.pinData = pins![indexPath]
+            
+            print("pin data passed")
         
     
     }
