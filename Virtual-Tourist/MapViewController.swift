@@ -33,7 +33,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: false)
         fetchRequest.sortDescriptors = [sortDescriptor]
         
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: DataController.shared.viewContext, sectionNameKeyPath: nil, cacheName: "Pin")
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: DataController.shared.viewContext, sectionNameKeyPath: nil, cacheName: nil)
         
         fetchedResultsController.delegate = self
         
@@ -185,10 +185,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         pinData.creationDate = Date()
         
         try? DataController.shared.viewContext.save()
-        
-        print(pinData.latitude)
-        print(pinData.longitude)
-        print(pinData.creationDate!)
+    
         print(pinData.self)
         
        
@@ -225,10 +222,11 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
                     }
                     
                 }
+                
+                self.setupFetchedResultsController()
  
         }
 
-    
     }
 
 }
@@ -305,26 +303,30 @@ extension MapViewController: CLLocationManagerDelegate {
         let PhotoAlbumViewController = storyBoard.instantiateViewController(withIdentifier: "PhotoAlbumView") as! PhotoAlbumViewController
         self.present(PhotoAlbumViewController, animated: true, completion: nil)
         
-        //pass the parameters of the selected/clicked pin to PhotoAlbumViewController upon clicking on disclosure detail
+        let pinData = Pin(context: DataController.shared.viewContext)
         
-            let pins = fetchedResultsController.fetchedObjects
+        let annotation = mapView.selectedAnnotations[0]
+         
+        let lat = annotation.coordinate.latitude
+        let long = annotation.coordinate.longitude
+        let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
                 
-            let annotation = mapView.selectedAnnotations[0]
-                
-            guard let indexPath = pins!.firstIndex(where: { (pinData) -> Bool in
-                    
-                    pinData.latitude == annotation.coordinate.latitude && pinData.longitude == annotation.coordinate.longitude
-                    
-                }) else {
-                print("pin data not passed")
-                    return
-                }
+        if pinData.latitude == coordinate.latitude && pinData.longitude == coordinate.longitude {
             
-            PhotoAlbumViewController.pinData = pins![indexPath]
+            PhotoAlbumViewController.pinData = pinData
             
-            print("pin data passed")
+            print("pinData passed")
+            
+        } else {
+            print("pinData not passed")
+        }
         
+    }
     
+    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+        
+
+        
     }
 
 }
