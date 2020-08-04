@@ -45,6 +45,28 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         
     }
     
+    private func loadPin(latitude: Double, longitude: Double) -> Pin? {
+         let predicate = NSPredicate(format: "latitude == %@ AND longitude == %@", latitude, longitude)
+         var pin: Pin?
+         do {
+             try pin = fetchPin(predicate)
+         } catch {
+             print(error)
+         }
+         return pin
+     }
+    
+    func fetchPin(_ predicate: NSPredicate, sorting: NSSortDescriptor? = nil) throws -> Pin? {
+          let fr = NSFetchRequest<NSFetchRequestResult>(entityName: "Pin")
+          fr.predicate = predicate
+          if let sorting = sorting {
+              fr.sortDescriptors = [sorting]
+          }
+        guard let pin = (try DataController.shared.viewContext.fetch(fr) as! [Pin]).first else {
+              return nil
+          }
+          return pin
+      }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -188,6 +210,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
     
         print(pinData.self)
         
+        loadPin(latitude: pinData.latitude, longitude: pinData.longitude)
        
             VirtualTouristClient.SearchPhoto(longitude: pinData.longitude, Latitude: pinData.latitude) { (photo, error) in
                 
@@ -222,8 +245,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
                     }
                     
                 }
-                
-                self.setupFetchedResultsController()
  
         }
 
@@ -305,11 +326,14 @@ extension MapViewController: CLLocationManagerDelegate {
         
         let pinData = Pin(context: DataController.shared.viewContext)
         
+        print(pinData)
+        
         let annotation = mapView.selectedAnnotations[0]
          
         let lat = annotation.coordinate.latitude
         let long = annotation.coordinate.longitude
         let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
+        
                 
         if pinData.latitude == coordinate.latitude && pinData.longitude == coordinate.longitude {
             
