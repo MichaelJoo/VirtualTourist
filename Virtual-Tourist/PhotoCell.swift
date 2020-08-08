@@ -8,9 +8,10 @@
 
 import Foundation
 import UIKit
+import Photos
 
 class PhotoCell: UICollectionViewCell {
     
-    @IBOutlet weak var PhotoImage: UIImageView!
+    @IBOutlet weak var photoImageView: UIImageView!
     
 }

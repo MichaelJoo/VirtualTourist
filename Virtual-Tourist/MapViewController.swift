@@ -46,7 +46,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
     }
     
     private func loadPin(latitude: Double, longitude: Double) -> Pin? {
-         let predicate = NSPredicate(format: "latitude == %@ AND longitude == %@", latitude, longitude)
+        let predicate = NSPredicate(format: "latitude == %@ AND longitude == %@", NSNumber(value: latitude), NSNumber(value: longitude))
          var pin: Pin?
          do {
              try pin = fetchPin(predicate)
@@ -209,8 +209,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         try? DataController.shared.viewContext.save()
     
         print(pinData.self)
-        
-        loadPin(latitude: pinData.latitude, longitude: pinData.longitude)
        
             VirtualTouristClient.SearchPhoto(longitude: pinData.longitude, Latitude: pinData.latitude) { (photo, error) in
                 
@@ -230,17 +228,14 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
                     //let rawflickerImageURLAddress = "https://farm{\(images.farm)}.staticflickr.com/{\(images.server)}/{\(images.id)}_{\(images.secret)}.jpg"
                         
                     let flickerImageURLAddress = URL(string:"https://farm\(images.farm).staticflickr.com/\(images.server)/\(images.id)_\(images.secret).jpg")!
-                    
-                  
-                    print(images.id)
 
                     photoData.pin = pinData
-                        
                     photoData.creationDate = pinData.creationDate
                     photoData.imageURL = flickerImageURLAddress
                         
+                    print(flickerImageURLAddress)
+                        
                     try? DataController.shared.viewContext.save()
-                    print(photoData)
                     
                     }
                     
@@ -319,36 +314,24 @@ extension MapViewController: CLLocationManagerDelegate {
     func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
         
         //TBD to segue to PhotoAlbumView Controller
-        
         let storyBoard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
         let PhotoAlbumViewController = storyBoard.instantiateViewController(withIdentifier: "PhotoAlbumView") as! PhotoAlbumViewController
         self.present(PhotoAlbumViewController, animated: true, completion: nil)
-        
-        let pinData = Pin(context: DataController.shared.viewContext)
-        
-        print(pinData)
         
         let annotation = mapView.selectedAnnotations[0]
          
         let lat = annotation.coordinate.latitude
         let long = annotation.coordinate.longitude
-        let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
         
-                
-        if pinData.latitude == coordinate.latitude && pinData.longitude == coordinate.longitude {
-            
-            PhotoAlbumViewController.pinData = pinData
-            
-            print("pinData passed")
-            
-        } else {
-            print("pinData not passed")
-        }
+        let pinDataUponClick = loadPin(latitude: lat, longitude: long)
         
+        PhotoAlbumViewController.pinData = pinDataUponClick
+
     }
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         
+
 
         
     }
