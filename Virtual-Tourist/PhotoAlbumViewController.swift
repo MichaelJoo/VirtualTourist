@@ -49,7 +49,8 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, NSFe
         photoCollectionView.delegate = self
         photoCollectionView.dataSource = self
         
-        setupCollectionViewLayout()
+        //commented below function to use CustomLayout assignment
+        //setupCollectionViewLayout()
      
     }
     
@@ -68,18 +69,32 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, NSFe
 
     }
     
+    
     func setupCollectionViewLayout() {
-                let spacing: CGFloat = 3
-                let width = UIScreen.main.bounds.width
-                let layout = UICollectionViewFlowLayout()
-                layout.sectionInset = UIEdgeInsets(top: spacing, left: spacing, bottom: 50, right: spacing)
-                let numberOfItems: CGFloat = 3
-                let itemSize = (width - (spacing * (numberOfItems+1))) / numberOfItems
-                layout.itemSize = CGSize(width: itemSize, height: itemSize)
-                layout.minimumInteritemSpacing = spacing
-                layout.minimumLineSpacing = spacing
-                photoCollectionView.collectionViewLayout = layout
-            }
+        let layout = UICollectionViewFlowLayout()
+
+        // Always use an item count of at least 1 and convert it to a float to use in size calculations
+        let numberOfItemsPerRow: Int = 3
+        let itemsPerRow = CGFloat(max(numberOfItemsPerRow,1))
+        
+        // Calculate the sum of the spacing between cells
+        let totalSpacing = layout.minimumInteritemSpacing * (itemsPerRow - 1.0)
+        
+        // Calculate how wide items should be
+        var newItemSize = layout.itemSize
+        
+        newItemSize.width = (photoCollectionView.bounds.size.width - layout.sectionInset.left - layout.sectionInset.right - totalSpacing) / itemsPerRow
+        
+        // Use the aspect ratio of the current item size to determine how tall the items should be
+        if layout.itemSize.height > 0 {
+            let itemAspectRatio = layout.itemSize.width / layout.itemSize.height
+            newItemSize.height = newItemSize.width / itemAspectRatio
+        }
+        
+        layout.itemSize = newItemSize
+      
+        photoCollectionView.collectionViewLayout = layout
+    }
     
     func numberOfSectionsInCollectionView(collectionView: UICollectionView) -> Int {
         return 1
@@ -105,6 +120,10 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, NSFe
         let data = try? Data(contentsOf: photoForCells.imageURL!)
     
         cell.photoImageView.image = UIImage(data: data!)
+        cell.photoImageView.contentMode = UIView.ContentMode.scaleAspectFill
+        //cell.photoImageView.clipsToBounds = true
+        //cell.photoImageView.translatesAutoresizingMaskIntoConstraints = true
+        //cell.photoImageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         
         cell.backgroundColor = .white
         
@@ -112,5 +131,6 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, NSFe
         
     }
 
-  
 }
+
+
