@@ -20,7 +20,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
     
     var fetchedResultsController: NSFetchedResultsController<Pin>!
 
-    
     let locationManager = CLLocationManager()
     let geoCoder = CLGeocoder()
     let regioninMeters: Double = 10000

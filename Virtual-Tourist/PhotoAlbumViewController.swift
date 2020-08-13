@@ -23,6 +23,13 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
     @IBOutlet weak var photoCollectionView: UICollectionView!
     @IBOutlet weak var photoAlbumFlowLayout: UICollectionViewFlowLayout!
     
+    
+    @IBAction func backButton(_ sender: UIBarButtonItem) {
+        
+       
+        
+    }
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,6 +37,8 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
         setupFetchedResultsController()
         
         photoMapView.delegate = self
+        setupLocationManager()
+        locationManager.startUpdatingLocation()
         
         photoCollectionView.delegate = self
         photoCollectionView.dataSource = self
@@ -166,6 +175,12 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
 
 extension PhotoAlbumViewController: MKMapViewDelegate, CLLocationManagerDelegate {
     
+    func mapViewDidFinishLoadingMap(_ mapView: MKMapView) {
+        
+        photoMapView.delegate = self
+        
+    }
+    
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
         
@@ -204,12 +219,12 @@ extension PhotoAlbumViewController: MKMapViewDelegate, CLLocationManagerDelegate
             
         } else {
             
-            pinData.title = annotation.title!
-            pinData.subtitle = annotation.subtitle!
-            pinData.latitude = annotation.coordinate.latitude
-            pinData.longitude = annotation.coordinate.longitude
+            pinData.title = pin.title!
+            pinData.subtitle = pin.subtitle!
+            pinData.latitude = pin.coordinate.latitude
+            pinData.longitude = pin.coordinate.longitude
             pinData.creationDate = Date()
-            pinView!.annotation = annotation
+            pinView!.annotation = pin
         }
         
         mapView.addAnnotation(pin)
