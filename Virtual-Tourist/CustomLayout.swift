@@ -12,7 +12,6 @@ import UIKit
 
 class CustomLayout: UICollectionViewFlowLayout {
     
-    
     var numberOfItemsPerRow: Int = 3 {
         didSet {
             invalidateLayout()

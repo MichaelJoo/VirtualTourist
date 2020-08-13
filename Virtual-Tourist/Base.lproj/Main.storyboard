@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17140" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17115"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="collection view cell content view" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -20,14 +22,14 @@
                                 <rect key="frame" x="0.0" y="44" width="414" height="818"/>
                             </mapView>
                         </subviews>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="AEt-lO-v5n" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="QLy-Dr-kNk"/>
                             <constraint firstItem="AEt-lO-v5n" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="feO-Hc-rC3"/>
                             <constraint firstItem="AEt-lO-v5n" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="vcY-C4-LXR"/>
                             <constraint firstItem="AEt-lO-v5n" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" id="y9q-2z-Z0M"/>
                         </constraints>
-                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <connections>
                         <outlet property="mapView" destination="AEt-lO-v5n" id="CfG-mF-kuY"/>
@@ -46,14 +48,14 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="CWH-U9-MQL">
-                                <rect key="frame" x="0.0" y="44" width="414" height="179"/>
+                                <rect key="frame" x="0.0" y="88" width="414" height="171"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </mapView>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="Isb-5A-bwH">
-                                <rect key="frame" x="0.0" y="231" width="414" height="631"/>
+                                <rect key="frame" x="0.0" y="267" width="414" height="595"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
-                                <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="nT4-Q2-CNd" customClass="CustomLayout" customModule="Virtual_Tourist" customModuleProvider="target">
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="nT4-Q2-CNd" customClass="CustomLayout" customModule="Virtual_Tourist" customModuleProvider="target">
                                     <size key="itemSize" width="128" height="128"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
                                     <size key="footerReferenceSize" width="0.0" height="0.0"/>
@@ -79,12 +81,21 @@
                                     </collectionViewCell>
                                 </cells>
                             </collectionView>
+                            <navigationBar contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cgD-w1-yg0">
+                                <rect key="frame" x="0.0" y="44" width="414" height="44"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                                <items>
+                                    <navigationItem title="Virtual Tourist" id="3Fb-Iz-OTd">
+                                        <barButtonItem key="leftBarButtonItem" title="Item" image="icon_back-arrow" id="8Qh-vz-Re9"/>
+                                    </navigationItem>
+                                </items>
+                            </navigationBar>
                         </subviews>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <viewLayoutGuide key="safeArea" id="aOt-LS-p6a"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
                     <connections>
-                        <outlet property="photoAlbumFlowLayout" destination="nT4-Q2-CNd" id="CcC-rU-zpQ"/>
+                        <outlet property="photoAlbumFlowLayout" destination="nT4-Q2-CNd" id="o53-xB-x6t"/>
                         <outlet property="photoCollectionView" destination="Isb-5A-bwH" id="uKf-dO-28d"/>
                         <outlet property="photoMapView" destination="CWH-U9-MQL" id="34E-cw-cZJ"/>
                     </connections>
@@ -94,4 +105,10 @@
             <point key="canvasLocation" x="1098.5507246376812" y="119.86607142857142"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="icon_back-arrow" width="24" height="24"/>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
 </document>

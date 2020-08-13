@@ -81,9 +81,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         mapView.delegate = self
         checkLocationServices()
         print("viewDidload")
-        
         setupFetchedResultsController()
-        
         
     }
     
@@ -233,8 +231,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
                     photoData.creationDate = pinData.creationDate
                     photoData.imageURL = flickerImageURLAddress
                         
-                    print(flickerImageURLAddress)
-                        
                     try? DataController.shared.viewContext.save()
                     
                     }
@@ -331,8 +327,6 @@ extension MapViewController: CLLocationManagerDelegate {
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         
-
-
         
     }
 
