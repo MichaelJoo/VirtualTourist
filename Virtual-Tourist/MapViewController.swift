@@ -82,11 +82,13 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         print("viewDidload")
         setupFetchedResultsController()
         
+        
     }
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         fetchedResultsController = nil
+        
 
     }
     
@@ -203,8 +205,10 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         pinData.longitude = annotation.coordinate.longitude
         pinData.creationDate = Date()
         
+        
         try? DataController.shared.viewContext.save()
-    
+        
+        mapView.addAnnotation(annotation)
         print(pinData.self)
        
             VirtualTouristClient.SearchPhoto(longitude: pinData.longitude, Latitude: pinData.latitude) { (photo, error) in
@@ -251,6 +255,7 @@ extension MapViewController: CLLocationManagerDelegate {
         let region = MKCoordinateRegion.init(center: center, latitudinalMeters: regioninMeters, longitudinalMeters: regioninMeters)
         mapView.setRegion(region, animated: true)
         
+        
     }
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
@@ -282,6 +287,7 @@ extension MapViewController: CLLocationManagerDelegate {
         }
         
         mapView.addAnnotation(pin)
+        
         return pinView
 
     }
@@ -311,7 +317,7 @@ extension MapViewController: CLLocationManagerDelegate {
         //TBD to segue to PhotoAlbumView Controller
         let storyBoard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
         let PhotoAlbumViewController = storyBoard.instantiateViewController(withIdentifier: "PhotoAlbumView") as! PhotoAlbumViewController
-        self.present(PhotoAlbumViewController, animated: true, completion: nil)
+        
         
         let annotation = mapView.selectedAnnotations[0]
          
@@ -321,6 +327,8 @@ extension MapViewController: CLLocationManagerDelegate {
         let pinDataUponClick = loadPin(latitude: lat, longitude: long)
         
         PhotoAlbumViewController.pinData = pinDataUponClick
+        
+        self.present(PhotoAlbumViewController, animated: true, completion: nil)
 
     }
     

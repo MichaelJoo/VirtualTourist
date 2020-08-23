@@ -22,37 +22,64 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
     @IBOutlet weak var photoMapView: MKMapView!
     @IBOutlet weak var photoCollectionView: UICollectionView!
     @IBOutlet weak var photoAlbumFlowLayout: UICollectionViewFlowLayout!
-    
+
     
     @IBAction func backButton(_ sender: UIBarButtonItem) {
+        //dismiss current viewcontroller to return to the previous one, this method is used to return to previous viewcontroller if you used self.present(yourViewController, animated: true, completion: nil)to present the current viewcontroller. This method of programmatically presenting previous view controller ensures that data/pin are retained
         
-       
+        //Another method of presenting the previous viewcontroller is using self.navigationController?.popViewController(animated: true) if one used self.navigationController?.pushViewController(yourViewController, animated: true) to present the current viewcontroller.
+        
+        //If these methods of going 1 view controller back is not sufficient, one can use "for _ in" methods to loop through all view controllers and pop to the specific viewcontroller one wants to go over
+        
+        self.dismiss(animated: true, completion: nil)
+        
+        //Method to remove photos related to currently selected pin. Need to check whether this method should be at this backbutton or ViewDidDisappear()
+        let photos = Photo(context: DataController.shared.viewContext)
+        
+        let fetchRequest:NSFetchRequest<Photo> = Photo.fetchRequest()
+        
+        // it must be noted that "pinData", which is variable using Pin entity data structure was sufficient to identify the exact Pin within fetchedResultsObjects although it is questionnable whether Pindata.id should be used, Xcode didn't have such feature.
+        let predicate = NSPredicate(format: "pin == %@", pinData)
+        fetchRequest.predicate = predicate
+        
+        let objects = try? DataController.shared.viewContext.fetch(fetchRequest)
+        
+        for obj in objects {
+            DataController.shared.viewContext.delete(obj)
+        }
+        
+        try? DataController.shared.viewContext.save()
+        
+        print("before delete")
+        print(pinData.photo!)
+        print("Delete photo executed")
         
     }
     
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupPinFetchedResultsController()
         setupFetchedResultsController()
-        
-        photoMapView.delegate = self
+       
         setupLocationManager()
         locationManager.startUpdatingLocation()
         
+        photoMapView.delegate = self
         photoCollectionView.delegate = self
         photoCollectionView.dataSource = self
         
         //setupCollectionViewLayout()
+        
+        let annotation = MKPointAnnotation()
+        annotation.coordinate = CLLocationCoordinate2D(latitude: pinData.latitude, longitude: pinData.longitude)
+        photoMapView.addAnnotation(annotation)
      
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.tabBarController?.tabBar.isHidden = false
         photoCollectionView.reloadData()
-        
-        print(pinData!)
         
 
     }
@@ -63,6 +90,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
         super.viewDidDisappear(animated)
         pinfetchedResultsController = nil
         fetchedResultsController = nil
+        
 
     }
     
@@ -127,19 +155,37 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
         return cell
         
     }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+            
+        deletePhoto(at: indexPath)
+    
+    }
 
 }
 
 extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
     
+    func deletePhoto(at indexPath: IndexPath) {
+        
+        let photoToDelete = fetchedResultsController.object(at: indexPath)
+        DataController.shared.viewContext.delete(photoToDelete)
+        try? DataController.shared.viewContext.save()
+        
+    }
+    
     fileprivate func setupFetchedResultsController() {
         
         let fetchRequest:NSFetchRequest<Photo> = Photo.fetchRequest()
         
+        // it must be noted that "pinData", which is variable using Pin entity data structure was sufficient to identify the exact Pin within fetchedResultsObjects although it is questionnable whether Pindata.id should be used, Xcode didn't have such feature. 
+        let predicate = NSPredicate(format: "pin == %@", pinData)
+        fetchRequest.predicate = predicate
+        
         let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: false)
         fetchRequest.sortDescriptors = [sortDescriptor]
         
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: DataController.shared.viewContext, sectionNameKeyPath: nil, cacheName: "Photo")
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: DataController.shared.viewContext, sectionNameKeyPath: nil, cacheName: "\(pinData!)-Photo")
         
         fetchedResultsController.delegate = self
         
@@ -175,18 +221,14 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
 
 extension PhotoAlbumViewController: MKMapViewDelegate, CLLocationManagerDelegate {
     
-    func mapViewDidFinishLoadingMap(_ mapView: MKMapView) {
-        
-        photoMapView.delegate = self
-        
-    }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let location = locations.last else { return }
+
         
         let center = CLLocationCoordinate2D(latitude: pinData.latitude, longitude: pinData.longitude)
         let region = MKCoordinateRegion.init(center: center, latitudinalMeters: regioninMeters, longitudinalMeters: regioninMeters)
         photoMapView.setRegion(region, animated: true)
+        
         
     }
     
@@ -200,8 +242,11 @@ extension PhotoAlbumViewController: MKMapViewDelegate, CLLocationManagerDelegate
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         
+        //Below lines of code never called as this method was never triggered.
+        
         let pin = MKPointAnnotation()
-        photoMapView = mapView
+        
+        setupPinFetchedResultsController()
         
         let reuseID = "pin"
         
@@ -215,20 +260,19 @@ extension PhotoAlbumViewController: MKMapViewDelegate, CLLocationManagerDelegate
             pinView!.isDraggable = false
             pinView!.canShowCallout = false
             pinView!.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
-        
+            
+            print("pinView nil")
+            
+
+            pinView!.annotation = pin
+
             
         } else {
-            
-            pinData.title = pin.title!
-            pinData.subtitle = pin.subtitle!
-            pinData.latitude = pin.coordinate.latitude
-            pinData.longitude = pin.coordinate.longitude
-            pinData.creationDate = Date()
-            pinView!.annotation = pin
+
+            print("pinView not nil")
         }
-        
-        mapView.addAnnotation(pin)
-        print(pin)
+
+        print("mapView Viewfor Annotation")
         return pinView
         
     }
