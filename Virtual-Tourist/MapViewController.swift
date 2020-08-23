@@ -210,38 +210,43 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         
         mapView.addAnnotation(annotation)
         print(pinData.self)
-       
-            VirtualTouristClient.SearchPhoto(longitude: pinData.longitude, Latitude: pinData.latitude) { (photo, error) in
+        
+        addPhotos(Pin: pinData, longitude: pinData.longitude, latitude: pinData.latitude)
+    
+    }
+    
+    func addPhotos (Pin: Pin, longitude: Double, latitude: Double) {
+        
+        VirtualTouristClient.SearchPhoto(longitude: longitude, Latitude: latitude) { (photo, error) in
+            
+            print("SearchPhoto API Executed")
+            
+            if photo.count == 0 {
                 
-                print("SearchPhoto API Executed")
+                let alertVC = UIAlertController(title: "No Images", message: "No Image to display", preferredStyle: .alert)
+                self.present(alertVC, animated: true, completion: nil)
                 
-                if photo.count == 0 {
+            } else {
+                
+                for images in photo {
+                
+                let photoData = Photo(context: DataController.shared.viewContext)
+                
+                //let rawflickerImageURLAddress = "https://farm{\(images.farm)}.staticflickr.com/{\(images.server)}/{\(images.id)}_{\(images.secret)}.jpg"
                     
-                    let alertVC = UIAlertController(title: "No Images", message: "No Image to display", preferredStyle: .alert)
-                    self.present(alertVC, animated: true, completion: nil)
-                    
-                } else {
-                    
-                    for images in photo {
-                    
-                    let photoData = Photo(context: DataController.shared.viewContext)
-                    
-                    //let rawflickerImageURLAddress = "https://farm{\(images.farm)}.staticflickr.com/{\(images.server)}/{\(images.id)}_{\(images.secret)}.jpg"
-                        
-                    let flickerImageURLAddress = URL(string:"https://farm\(images.farm).staticflickr.com/\(images.server)/\(images.id)_\(images.secret).jpg")!
+                let flickerImageURLAddress = URL(string:"https://farm\(images.farm).staticflickr.com/\(images.server)/\(images.id)_\(images.secret).jpg")!
 
-                    photoData.pin = pinData
-                    photoData.creationDate = pinData.creationDate
-                    photoData.imageURL = flickerImageURLAddress
-                        
-                    try? DataController.shared.viewContext.save()
+                photoData.pin = Pin
+                photoData.creationDate = Pin.creationDate
+                photoData.imageURL = flickerImageURLAddress
                     
-                    }
-                    
+                try? DataController.shared.viewContext.save()
+                
                 }
- 
+                
+            }
         }
-
+        
     }
 
 }
@@ -327,6 +332,8 @@ extension MapViewController: CLLocationManagerDelegate {
         let pinDataUponClick = loadPin(latitude: lat, longitude: long)
         
         PhotoAlbumViewController.pinData = pinDataUponClick
+        
+        addPhotos(Pin: pinDataUponClick!, longitude: pinDataUponClick!.longitude, latitude: pinDataUponClick!.latitude)
         
         self.present(PhotoAlbumViewController, animated: true, completion: nil)
 

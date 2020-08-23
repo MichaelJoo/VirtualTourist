@@ -34,7 +34,6 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
         self.dismiss(animated: true, completion: nil)
         
         //Method to remove photos related to currently selected pin. Need to check whether this method should be at this backbutton or ViewDidDisappear()
-        let photos = Photo(context: DataController.shared.viewContext)
         
         let fetchRequest:NSFetchRequest<Photo> = Photo.fetchRequest()
         
@@ -44,7 +43,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
         
         let objects = try? DataController.shared.viewContext.fetch(fetchRequest)
         
-        for obj in objects {
+        for obj in objects! {
             DataController.shared.viewContext.delete(obj)
         }
         
@@ -159,6 +158,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
             
         deletePhoto(at: indexPath)
+        print("delete selected photo")
     
     }
 
