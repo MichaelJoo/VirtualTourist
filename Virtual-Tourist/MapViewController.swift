@@ -210,12 +210,11 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         
         mapView.addAnnotation(annotation)
         print(pinData.self)
-        
-        addPhotos(Pin: pinData, longitude: pinData.longitude, latitude: pinData.latitude)
     
     }
     
     func addPhotos (Pin: Pin, longitude: Double, latitude: Double) {
+        
         
         VirtualTouristClient.SearchPhoto(longitude: longitude, Latitude: latitude) { (photo, error) in
             
@@ -333,9 +332,17 @@ extension MapViewController: CLLocationManagerDelegate {
         
         PhotoAlbumViewController.pinData = pinDataUponClick
         
-        addPhotos(Pin: pinDataUponClick!, longitude: pinDataUponClick!.longitude, latitude: pinDataUponClick!.latitude)
-        
         self.present(PhotoAlbumViewController, animated: true, completion: nil)
+        
+        addPhotos(Pin: PhotoAlbumViewController.pinData!, longitude: PhotoAlbumViewController.pinData!.longitude, latitude: PhotoAlbumViewController.pinData!.latitude)
+        
+        
+        //below print statement resulted in "fault" Relationship 'photo' fault on managed object (0x283da8b90) <Pin: 0x283da8b90> (entity: Pin; id: 0x9121c2f54e74d1e6
+        //fault meaning - Managed objects typically represent data held in a persistent store. In some situations a managed object may be a fault—an object whose property values have not yet been loaded from the external data store. Faulting reduces the amount of memory your application consumes.
+        
+        print(PhotoAlbumViewController.pinData!)
+        
+        print(PhotoAlbumViewController.pinData!.photo!)
 
     }
     
