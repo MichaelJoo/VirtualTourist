@@ -182,11 +182,13 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
     
     fileprivate func setupFetchedResultsController() {
         
-        let fetchRequest:NSFetchRequest<Photo> = Photo.fetchRequest()
+        var fetchRequest:NSFetchRequest<Photo> = Photo.fetchRequest()
         
         // it must be noted that "pinData", which is variable using Pin entity data structure was sufficient to identify the exact Pin within fetchedResultsObjects although it is questionnable whether Pindata.id should be used, Xcode didn't have such feature. 
         let predicate = NSPredicate(format: "pin == %@", pinData)
         fetchRequest.predicate = predicate
+        
+        fetchRequest = Photo.fetchRequest()
         fetchRequest.returnsObjectsAsFaults = false
         
         let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: false)
@@ -195,7 +197,7 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
         fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: DataController.shared.viewContext, sectionNameKeyPath: nil, cacheName: "\(pinData!)-Photo")
         
         fetchedResultsController.delegate = self
-        
+
         do {
             try fetchedResultsController.performFetch()
         } catch {
@@ -206,7 +208,7 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
         print("pindata printed")
         print(pinData!.photo!.self)
         print("photo printed")
-        print(pinData.photo?.count)
+        print(pinData!.photo!.count)
         
     }
     
@@ -216,7 +218,7 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
         
         let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: false)
         fetchRequest.sortDescriptors = [sortDescriptor]
-        
+     
         pinfetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: DataController.shared.viewContext, sectionNameKeyPath: nil, cacheName: nil)
         
         pinfetchedResultsController.delegate = self

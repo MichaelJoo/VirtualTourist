@@ -341,7 +341,8 @@ extension MapViewController: CLLocationManagerDelegate {
         //None of the photos added to the pin has been realized due to "fault". It is unclear why the photos were still "unrealized in PhotoAlbumViewController" because one of its property, imageURL has been accessed to populate collection View cell. 
         
         addPhotos(Pin: PhotoAlbumViewController.pinData!, longitude: PhotoAlbumViewController.pinData!.longitude, latitude: PhotoAlbumViewController.pinData!.latitude)
-
+        
+        print(PhotoAlbumViewController.pinData!.photo!)
 
     }
     
