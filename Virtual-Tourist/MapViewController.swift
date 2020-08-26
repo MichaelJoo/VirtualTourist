@@ -334,15 +334,14 @@ extension MapViewController: CLLocationManagerDelegate {
         
         self.present(PhotoAlbumViewController, animated: true, completion: nil)
         
-        addPhotos(Pin: PhotoAlbumViewController.pinData!, longitude: PhotoAlbumViewController.pinData!.longitude, latitude: PhotoAlbumViewController.pinData!.latitude)
-        
-        
-        //below print statement resulted in "fault" Relationship 'photo' fault on managed object (0x283da8b90) <Pin: 0x283da8b90> (entity: Pin; id: 0x9121c2f54e74d1e6
         //fault meaning - Managed objects typically represent data held in a persistent store. In some situations a managed object may be a fault—an object whose property values have not yet been loaded from the external data store. Faulting reduces the amount of memory your application consumes.
         
-        print(PhotoAlbumViewController.pinData!)
+        //A fault is a placeholder object that represents a managed object that has not yet been fully realized, or a collection object that represents a relationship:
         
-        print(PhotoAlbumViewController.pinData!.photo!)
+        //None of the photos added to the pin has been realized due to "fault". It is unclear why the photos were still "unrealized in PhotoAlbumViewController" because one of its property, imageURL has been accessed to populate collection View cell. 
+        
+        addPhotos(Pin: PhotoAlbumViewController.pinData!, longitude: PhotoAlbumViewController.pinData!.longitude, latitude: PhotoAlbumViewController.pinData!.latitude)
+
 
     }
     

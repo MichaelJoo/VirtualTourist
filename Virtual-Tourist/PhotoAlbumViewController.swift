@@ -69,6 +69,8 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
         photoCollectionView.dataSource = self
         
         //setupCollectionViewLayout()
+        print(pinData!.self)
+        print("photoalbumview loaded")
         
         let annotation = MKPointAnnotation()
         annotation.coordinate = CLLocationCoordinate2D(latitude: pinData.latitude, longitude: pinData.longitude)
@@ -121,12 +123,16 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
     }
     
     func numberOfSectionsInCollectionView(collectionView: UICollectionView) -> Int {
-        return 1
+        return fetchedResultsController.sections?.count ?? 1
         }
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
-        return pinData.photo!.count
+        let photoData = fetchedResultsController.fetchedObjects
+        
+        print(photoData!.count)
+        
+        return photoData!.count
             
         }
     
@@ -181,6 +187,7 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
         // it must be noted that "pinData", which is variable using Pin entity data structure was sufficient to identify the exact Pin within fetchedResultsObjects although it is questionnable whether Pindata.id should be used, Xcode didn't have such feature. 
         let predicate = NSPredicate(format: "pin == %@", pinData)
         fetchRequest.predicate = predicate
+        fetchRequest.returnsObjectsAsFaults = false
         
         let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: false)
         fetchRequest.sortDescriptors = [sortDescriptor]
@@ -194,6 +201,12 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
         } catch {
             fatalError("The fetched could not be executed: \(error.localizedDescription)")
         }
+        
+        print(pinData!.self)
+        print("pindata printed")
+        print(pinData!.photo!.self)
+        print("photo printed")
+        print(pinData.photo?.count)
         
     }
     
