@@ -14,6 +14,8 @@ import CoreData
 class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource {
     
     var pinData: Pin!
+    var photoData: Photo!
+    
     var pinfetchedResultsController: NSFetchedResultsController<Pin>!
     var fetchedResultsController: NSFetchedResultsController<Photo>!
     let locationManager = CLLocationManager()
@@ -35,9 +37,26 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
         
         //Method to remove photos related to currently selected pin. Need to check whether this method should be at this backbutton or ViewDidDisappear()
         
-        let fetchRequest:NSFetchRequest<Photo> = Photo.fetchRequest()
-        
         // it must be noted that "pinData", which is variable using Pin entity data structure was sufficient to identify the exact Pin within fetchedResultsObjects although it is questionnable whether Pindata.id should be used, Xcode didn't have such feature.
+        
+        //let fetchRequest:NSFetchRequest<Photo> = Photo.fetchRequest()
+        //let predicate = NSPredicate(format: "pin == %@", pinData)
+        //fetchRequest.predicate = predicate
+        
+        //let objects = try? DataController.shared.viewContext.fetch(fetchRequest)
+        
+        //for obj in objects! {
+            //DataController.shared.viewContext.delete(obj)
+        //}
+        
+        //try? DataController.shared.viewContext.save()
+        
+    }
+    
+    @IBAction func newCollection(_ sender: UIBarButtonItem) {
+        //add codes to "refresh" images in the collectionView
+        
+        let fetchRequest:NSFetchRequest<Photo> = Photo.fetchRequest()
         let predicate = NSPredicate(format: "pin == %@", pinData)
         fetchRequest.predicate = predicate
         
@@ -47,12 +66,10 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
             DataController.shared.viewContext.delete(obj)
         }
         
-        try? DataController.shared.viewContext.save()
+        DataController.shared.autoSaveViewContext()
         
-        print("before delete")
-        print(pinData.photo!)
-        print("Delete photo executed")
-        
+        addPhotos(Pin: pinData, longitude: pinData.longitude, latitude: pinData.latitude)
+       
     }
     
     
@@ -67,10 +84,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
         photoMapView.delegate = self
         photoCollectionView.delegate = self
         photoCollectionView.dataSource = self
-        
-        //setupCollectionViewLayout()
-        print(pinData!.self)
-        print("photoalbumview loaded")
+      
         
         let annotation = MKPointAnnotation()
         annotation.coordinate = CLLocationCoordinate2D(latitude: pinData.latitude, longitude: pinData.longitude)
@@ -140,17 +154,14 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath) as! PhotoCell
         
-        //let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Photo")
-        
-        //let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: false)
-        //fetchRequest.sortDescriptors = [sortDescriptor]
-        
         let photoForCells = fetchedResultsController.object(at: indexPath)
         
         let data = try? Data(contentsOf: photoForCells.imageURL!)
     
         cell.photoImageView.image = UIImage(data: data!)
         cell.photoImageView.contentMode = UIView.ContentMode.scaleAspectFill
+        
+        //image size issue is solved by using "CustomLayout" which can be a boilerplate
         //cell.photoImageView.clipsToBounds = true
         //cell.photoImageView.translatesAutoresizingMaskIntoConstraints = true
         //cell.photoImageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
@@ -165,7 +176,43 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
             
         deletePhoto(at: indexPath)
         print("delete selected photo")
+        
+    }
     
+    func addPhotos (Pin: Pin, longitude: Double, latitude: Double) {
+        
+        
+        VirtualTouristClient.SearchPhoto(longitude: longitude, Latitude: latitude) { (photo, error) in
+            
+            print("SearchPhoto API Executed")
+            
+            if photo.count == 0 {
+                
+                let alertVC = UIAlertController(title: "No Images", message: "No Image to display", preferredStyle: .alert)
+                self.present(alertVC, animated: true, completion: nil)
+                
+            } else {
+                
+                for images in photo {
+                
+                let photoData = Photo(context: DataController.shared.viewContext)
+                
+                //let rawflickerImageURLAddress = "https://farm{\(images.farm)}.staticflickr.com/{\(images.server)}/{\(images.id)}_{\(images.secret)}.jpg"
+                    
+                let flickerImageURLAddress = URL(string:"https://farm\(images.farm).staticflickr.com/\(images.server)/\(images.id)_\(images.secret).jpg")!
+
+                photoData.pin = Pin
+                photoData.creationDate = Pin.creationDate
+                photoData.imageURL = flickerImageURLAddress
+                    
+                try? DataController.shared.viewContext.save()
+                    
+                
+                }
+                
+            }
+        }
+        
     }
 
 }
@@ -180,16 +227,29 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
         
     }
     
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+        switch type {
+        case .insert:
+            photoCollectionView.insertItems(at: [newIndexPath!])
+        case .delete:
+            photoCollectionView.deleteItems(at: [indexPath!])
+        case .move:
+            photoCollectionView.moveItem(at: indexPath!, to: newIndexPath!)
+        case .update:
+            photoCollectionView.reloadItems(at: [newIndexPath!])
+        @unknown default:
+            fatalError("")
+        }
+    }
+    
     fileprivate func setupFetchedResultsController() {
         
-        var fetchRequest:NSFetchRequest<Photo> = Photo.fetchRequest()
+        let fetchRequest:NSFetchRequest<Photo> = Photo.fetchRequest()
         
-        // it must be noted that "pinData", which is variable using Pin entity data structure was sufficient to identify the exact Pin within fetchedResultsObjects although it is questionnable whether Pindata.id should be used, Xcode didn't have such feature. 
+        // it must be noted that "pinData", which is variable using Pin entity data structure was sufficient to identify the exact Pin within fetchedResultsObjects although it is questionnable whether Pindata.id should be used, Xcode didn't have such feature.
+  
         let predicate = NSPredicate(format: "pin == %@", pinData)
         fetchRequest.predicate = predicate
-        
-        fetchRequest = Photo.fetchRequest()
-        fetchRequest.returnsObjectsAsFaults = false
         
         let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: false)
         fetchRequest.sortDescriptors = [sortDescriptor]
@@ -203,12 +263,6 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
         } catch {
             fatalError("The fetched could not be executed: \(error.localizedDescription)")
         }
-        
-        print(pinData!.self)
-        print("pindata printed")
-        print(pinData!.photo!.self)
-        print("photo printed")
-        print(pinData!.photo!.count)
         
     }
     
@@ -251,7 +305,6 @@ extension PhotoAlbumViewController: MKMapViewDelegate, CLLocationManagerDelegate
     func setupLocationManager() {
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        print("setupLocationManager")
     }
     
     
@@ -260,8 +313,6 @@ extension PhotoAlbumViewController: MKMapViewDelegate, CLLocationManagerDelegate
         //Below lines of code never called as this method was never triggered.
         
         let pin = MKPointAnnotation()
-        
-        setupPinFetchedResultsController()
         
         let reuseID = "pin"
         

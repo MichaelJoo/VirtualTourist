@@ -79,7 +79,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         
         mapView.delegate = self
         checkLocationServices()
-        print("viewDidload")
         setupFetchedResultsController()
         
         
@@ -99,7 +98,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
     func setupLocationManager() {
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        print("setupLocationManager")
+        
     }
     
     func centerViewUserLocation() {
@@ -107,7 +106,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
             let region = MKCoordinateRegion.init(center:location, latitudinalMeters: regioninMeters, longitudinalMeters: regioninMeters)
             mapView.setRegion(region, animated: true)
             
-            print("centerViewUserLocation")
+            
         }
     }
     
@@ -116,7 +115,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         if CLLocationManager.locationServicesEnabled() {
             setupLocationManager()
             checkLocationAuthorization()
-            print("checkLocationServices")
+            
         } else {
             //show alert to user to inform they have to turn location manager on
         }
@@ -130,7 +129,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
             //mapView.showsUserLocation = true
             centerViewUserLocation()
             locationManager.startUpdatingLocation()
-            print("checkLocationAuthorization")
+            
             break
         case .denied:
             // show alert instructing them how to turn on permission
@@ -210,6 +209,8 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         
         mapView.addAnnotation(annotation)
         print(pinData.self)
+        
+        addPhotos(Pin: pinData, longitude: pinData.longitude, latitude: pinData.latitude)
     
     }
     
@@ -240,6 +241,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
                 photoData.imageURL = flickerImageURLAddress
                     
                 try? DataController.shared.viewContext.save()
+                    
                 
                 }
                 
@@ -264,7 +266,7 @@ extension MapViewController: CLLocationManagerDelegate {
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         checkLocationAuthorization()
-        print("checkLocationAuthorization2")
+        
     }
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
@@ -339,10 +341,8 @@ extension MapViewController: CLLocationManagerDelegate {
         //A fault is a placeholder object that represents a managed object that has not yet been fully realized, or a collection object that represents a relationship:
         
         //None of the photos added to the pin has been realized due to "fault". It is unclear why the photos were still "unrealized in PhotoAlbumViewController" because one of its property, imageURL has been accessed to populate collection View cell. 
-        
-        addPhotos(Pin: PhotoAlbumViewController.pinData!, longitude: PhotoAlbumViewController.pinData!.longitude, latitude: PhotoAlbumViewController.pinData!.latitude)
-        
-        print(PhotoAlbumViewController.pinData!.photo!)
+    
+
 
     }
     
