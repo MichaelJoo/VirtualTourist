@@ -44,6 +44,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         
     }
     
+    
     private func loadPin(latitude: Double, longitude: Double) -> Pin? {
         let predicate = NSPredicate(format: "latitude == %@ AND longitude == %@", NSNumber(value: latitude), NSNumber(value: longitude))
          var pin: Pin?

@@ -14,7 +14,6 @@ import CoreData
 class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource {
     
     var pinData: Pin!
-    var photoData: Photo!
     
     var pinfetchedResultsController: NSFetchedResultsController<Pin>!
     var fetchedResultsController: NSFetchedResultsController<Photo>!
@@ -63,12 +62,17 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
         let objects = try? DataController.shared.viewContext.fetch(fetchRequest)
         
         for obj in objects! {
+
             DataController.shared.viewContext.delete(obj)
+            try? DataController.shared.viewContext.save()
+            print("delete photo completed")
+            
         }
+        self.photoCollectionView.reloadData()
+        print("refresh photo triggered")
         
-        DataController.shared.autoSaveViewContext()
+       addPhotos(Pin: pinData, longitude: pinData.longitude, latitude: pinData.latitude)
         
-        addPhotos(Pin: pinData, longitude: pinData.longitude, latitude: pinData.latitude)
        
     }
     
@@ -109,6 +113,43 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 
     }
     
+    func addPhotos (Pin: Pin, longitude: Double, latitude: Double) {
+        
+        
+        VirtualTouristClient.SearchPhoto(longitude: longitude, Latitude: latitude) { (photo, error) in
+            
+            print("SearchPhoto API Executed")
+            
+            if photo.count == 0 {
+                
+                let alertVC = UIAlertController(title: "No Images", message: "No Image to display", preferredStyle: .alert)
+                self.present(alertVC, animated: true, completion: nil)
+                
+            } else {
+                
+                for images in photo {
+                
+                let photoData = Photo(context: DataController.shared.viewContext)
+                
+                //let rawflickerImageURLAddress = "https://farm{\(images.farm)}.staticflickr.com/{\(images.server)}/{\(images.id)}_{\(images.secret)}.jpg"
+                    
+                let flickerImageURLAddress = URL(string:"https://farm\(images.farm).staticflickr.com/\(images.server)/\(images.id)_\(images.secret).jpg")!
+
+                photoData.pin = Pin
+                photoData.creationDate = Pin.creationDate
+                photoData.imageURL = flickerImageURLAddress
+                  
+                    
+                try? DataController.shared.viewContext.save()
+                self.photoCollectionView.reloadData()
+                
+                }
+                
+            }
+        }
+        
+    }
+    
     
     func setupCollectionViewLayout() {
         let layout = UICollectionViewFlowLayout()
@@ -136,15 +177,19 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
         photoCollectionView.collectionViewLayout = layout
     }
     
+    
     func numberOfSectionsInCollectionView(collectionView: UICollectionView) -> Int {
+        
+        
         return fetchedResultsController.sections?.count ?? 1
         }
+    
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
         let photoData = fetchedResultsController.fetchedObjects
         
-        print(photoData!.count)
+        print("number of items in section", section, photoData!.count)
         
         return photoData!.count
             
@@ -178,42 +223,6 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
         print("delete selected photo")
         
     }
-    
-    func addPhotos (Pin: Pin, longitude: Double, latitude: Double) {
-        
-        
-        VirtualTouristClient.SearchPhoto(longitude: longitude, Latitude: latitude) { (photo, error) in
-            
-            print("SearchPhoto API Executed")
-            
-            if photo.count == 0 {
-                
-                let alertVC = UIAlertController(title: "No Images", message: "No Image to display", preferredStyle: .alert)
-                self.present(alertVC, animated: true, completion: nil)
-                
-            } else {
-                
-                for images in photo {
-                
-                let photoData = Photo(context: DataController.shared.viewContext)
-                
-                //let rawflickerImageURLAddress = "https://farm{\(images.farm)}.staticflickr.com/{\(images.server)}/{\(images.id)}_{\(images.secret)}.jpg"
-                    
-                let flickerImageURLAddress = URL(string:"https://farm\(images.farm).staticflickr.com/\(images.server)/\(images.id)_\(images.secret).jpg")!
-
-                photoData.pin = Pin
-                photoData.creationDate = Pin.creationDate
-                photoData.imageURL = flickerImageURLAddress
-                    
-                try? DataController.shared.viewContext.save()
-                    
-                
-                }
-                
-            }
-        }
-        
-    }
 
 }
 
@@ -226,6 +235,7 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
         try? DataController.shared.viewContext.save()
         
     }
+
     
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         switch type {
@@ -242,6 +252,17 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
         }
     }
     
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
+        let indexSet = IndexSet(integer: sectionIndex)
+        switch type {
+        case .insert: photoCollectionView.insertSections(indexSet)
+        case .delete: photoCollectionView.deleteSections(indexSet)
+        case .update, .move:
+            fatalError("Invalid change type in controller(_:didChange:atSectionIndex:for:). Only .insert or .delete should be possible.")
+        }
+    }
+
+    
     fileprivate func setupFetchedResultsController() {
         
         let fetchRequest:NSFetchRequest<Photo> = Photo.fetchRequest()
@@ -254,7 +275,7 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
         let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: false)
         fetchRequest.sortDescriptors = [sortDescriptor]
         
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: DataController.shared.viewContext, sectionNameKeyPath: nil, cacheName: "\(pinData!)-Photo")
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: DataController.shared.viewContext, sectionNameKeyPath: nil, cacheName: nil)
         
         fetchedResultsController.delegate = self
 
@@ -274,6 +295,8 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
         fetchRequest.sortDescriptors = [sortDescriptor]
      
         pinfetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: DataController.shared.viewContext, sectionNameKeyPath: nil, cacheName: nil)
+        
+        NSFetchedResultsController<NSFetchRequestResult>.deleteCache(withName: nil)
         
         pinfetchedResultsController.delegate = self
         
