@@ -20,6 +20,10 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
     let locationManager = CLLocationManager()
     let regioninMeters: Double = 10000
     
+    private var insertedIndexPaths: [IndexPath]!
+    private var deletedIndexPaths: [IndexPath]!
+    private var updatedIndexPaths: [IndexPath]!
+    
     @IBOutlet weak var photoMapView: MKMapView!
     @IBOutlet weak var photoCollectionView: UICollectionView!
     @IBOutlet weak var photoAlbumFlowLayout: UICollectionViewFlowLayout!
@@ -59,17 +63,14 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
         let predicate = NSPredicate(format: "pin == %@", pinData)
         fetchRequest.predicate = predicate
         
-        let objects = try? DataController.shared.viewContext.fetch(fetchRequest)
+        let objects = fetchedResultsController.fetchedObjects
         
-        for obj in objects! {
+        for obj in objects!.reversed() {
 
             DataController.shared.viewContext.delete(obj)
             try? DataController.shared.viewContext.save()
-            print("delete photo completed")
             
         }
-        self.photoCollectionView.reloadData()
-        print("refresh photo triggered")
         
        addPhotos(Pin: pinData, longitude: pinData.longitude, latitude: pinData.latitude)
         
@@ -235,23 +236,45 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
         try? DataController.shared.viewContext.save()
         
     }
-
     
-    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
-        switch type {
-        case .insert:
-            photoCollectionView.insertItems(at: [newIndexPath!])
-        case .delete:
-            photoCollectionView.deleteItems(at: [indexPath!])
-        case .move:
-            photoCollectionView.moveItem(at: indexPath!, to: newIndexPath!)
-        case .update:
-            photoCollectionView.reloadItems(at: [newIndexPath!])
-        @unknown default:
-            fatalError("")
-        }
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        photoCollectionView.performBatchUpdates({() -> Void in
+            for indexPath in self.insertedIndexPaths {
+                self.photoCollectionView.insertItems(at: [indexPath])
+            }
+            for indexPath in self.deletedIndexPaths {
+                self.photoCollectionView.deleteItems(at: [indexPath])
+            }
+            for indexPath in self.updatedIndexPaths {
+                self.photoCollectionView.reloadItems(at: [indexPath])
+            }
+        }, completion: nil)
     }
     
+    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        insertedIndexPaths = [IndexPath]()
+        deletedIndexPaths = [IndexPath]()
+        updatedIndexPaths = [IndexPath]()
+    }
+
+    
+    func controller(
+        _ controller: NSFetchedResultsController<NSFetchRequestResult>,
+        didChange anObject: Any,
+        at indexPath: IndexPath?,
+        for type: NSFetchedResultsChangeType,
+        newIndexPath: IndexPath?) {
+        switch (type) {
+        case .insert:
+            insertedIndexPaths.append(newIndexPath!)
+        case .delete:
+            deletedIndexPaths.append(indexPath!)
+        case .update:
+            updatedIndexPaths.append(indexPath!)
+        default:
+            break
+        }
+    }
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
         let indexSet = IndexSet(integer: sectionIndex)
         switch type {
