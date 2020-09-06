@@ -20,6 +20,10 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
     let locationManager = CLLocationManager()
     let regioninMeters: Double = 10000
     
+    private let privateMOC = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
+    
+    var blockOperations: [BlockOperation] = []
+    
     private var insertedIndexPaths: [IndexPath]!
     private var deletedIndexPaths: [IndexPath]!
     private var updatedIndexPaths: [IndexPath]!
@@ -66,15 +70,12 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
         let objects = fetchedResultsController.fetchedObjects
         
         for obj in objects!.reversed() {
-
             DataController.shared.viewContext.delete(obj)
-            try? DataController.shared.viewContext.save()
-            
         }
+        DataController.shared.autoSaveViewContext()
         
        addPhotos(Pin: pinData, longitude: pinData.longitude, latitude: pinData.latitude)
         
-       
     }
     
     
@@ -139,15 +140,16 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
                 photoData.pin = Pin
                 photoData.creationDate = Pin.creationDate
                 photoData.imageURL = flickerImageURLAddress
-                  
-                    
-                try? DataController.shared.viewContext.save()
-                self.photoCollectionView.reloadData()
                 
+                print(photoData)
+              
                 }
+    
+                try? DataController.shared.viewContext.save()
                 
             }
         }
+        
         
     }
     
@@ -188,11 +190,9 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
-        let photoData = fetchedResultsController.fetchedObjects
+        guard let sections = fetchedResultsController.sections else {return 0 }
         
-        print("number of items in section", section, photoData!.count)
-        
-        return photoData!.count
+        return sections[section].numberOfObjects
             
         }
     
@@ -237,20 +237,6 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
         
     }
     
-    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        photoCollectionView.performBatchUpdates({() -> Void in
-            for indexPath in self.insertedIndexPaths {
-                self.photoCollectionView.insertItems(at: [indexPath])
-            }
-            for indexPath in self.deletedIndexPaths {
-                self.photoCollectionView.deleteItems(at: [indexPath])
-            }
-            for indexPath in self.updatedIndexPaths {
-                self.photoCollectionView.reloadItems(at: [indexPath])
-            }
-        }, completion: nil)
-    }
-    
     func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         insertedIndexPaths = [IndexPath]()
         deletedIndexPaths = [IndexPath]()
@@ -275,14 +261,45 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
             break
         }
     }
+    
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
-        let indexSet = IndexSet(integer: sectionIndex)
-        switch type {
-        case .insert: photoCollectionView.insertSections(indexSet)
-        case .delete: photoCollectionView.deleteSections(indexSet)
-        case .update, .move:
-            fatalError("Invalid change type in controller(_:didChange:atSectionIndex:for:). Only .insert or .delete should be possible.")
+        if type == NSFetchedResultsChangeType.insert {
+            print("Insert Section: \(sectionIndex)")
+
+            blockOperations.append(
+                BlockOperation(block: { [weak self] in
+                    if let this = self {
+                        this.photoCollectionView!.insertSections(IndexSet(integer: sectionIndex))
+                    }
+                })
+            )
         }
+        else if type == NSFetchedResultsChangeType.update {
+            print("Update Section: \(sectionIndex)")
+            blockOperations.append(
+                BlockOperation(block: { [weak self] in
+                    if let this = self {
+                        this.photoCollectionView!.reloadSections(IndexSet(integer: sectionIndex))
+                    }
+                })
+            )
+        }
+        else if type == NSFetchedResultsChangeType.delete {
+            print("Delete Section: \(sectionIndex)")
+
+            blockOperations.append(
+                BlockOperation(block: { [weak self] in
+                    if let this = self {
+                        this.photoCollectionView!.deleteSections(IndexSet(integer: sectionIndex))
+                    }
+                })
+            )
+        }
+    }
+    
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        photoCollectionView.reloadData()
+        print("controllerDidChangeContent has been called")
     }
 
     
