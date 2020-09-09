@@ -14,6 +14,7 @@ import CoreData
 class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource {
     
     var pinData: Pin!
+    var indicator: ActivtyIndicator!
     
     var pinfetchedResultsController: NSFetchedResultsController<Pin>!
     var fetchedResultsController: NSFetchedResultsController<Photo>!
@@ -74,6 +75,9 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
         }
         DataController.shared.autoSaveViewContext()
         
+        indicator = ActivtyIndicator(inview:self.view,loadingViewColor: UIColor.gray, indicatorColor: UIColor.black, msg: "Refreshing")
+        self.photoCollectionView.addSubview(indicator!)
+        
        addPhotos(Pin: pinData, longitude: pinData.longitude, latitude: pinData.latitude)
         
     }
@@ -95,6 +99,12 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
         let annotation = MKPointAnnotation()
         annotation.coordinate = CLLocationCoordinate2D(latitude: pinData.latitude, longitude: pinData.longitude)
         photoMapView.addAnnotation(annotation)
+        
+        //indicator = ProgressIndicator(inview: self.view,messsage: "Hello from Nepal..")
+            //self.view.addSubview(indicator!)
+            //OR
+        indicator = ActivtyIndicator(inview:self.view,loadingViewColor: UIColor.gray, indicatorColor: UIColor.black, msg: "Downloading")
+            self.view.addSubview(indicator!)
      
     }
     
@@ -201,12 +211,19 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath) as! PhotoCell
         
         let photoForCells = fetchedResultsController.object(at: indexPath)
+
+        self.indicator!.start()
         
-        let data = try? Data(contentsOf: photoForCells.imageURL!)
-    
-        cell.photoImageView.image = UIImage(data: data!)
-        cell.photoImageView.contentMode = UIView.ContentMode.scaleAspectFill
+        DispatchQueue.main.async {
         
+            if let data = try? Data(contentsOf: photoForCells.imageURL!) {
+                    print("activity indicator called")
+                    cell.photoImageView.image = UIImage(data: data)
+                    cell.photoImageView.contentMode = UIView.ContentMode.scaleAspectFill
+                    self.indicator!.stop()
+            }
+        }
+  
         //image size issue is solved by using "CustomLayout" which can be a boilerplate
         //cell.photoImageView.clipsToBounds = true
         //cell.photoImageView.translatesAutoresizingMaskIntoConstraints = true
@@ -214,16 +231,25 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
         
         cell.backgroundColor = .white
         
+        
+        
         return cell
         
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-            
+        
+        indicator = ActivtyIndicator(inview:self.view,loadingViewColor: UIColor.gray, indicatorColor: UIColor.black, msg: "Deleting")
+        self.photoCollectionView.addSubview(indicator!)
+        
+        indicator.start()
+        
         deletePhoto(at: indexPath)
         print("delete selected photo")
         
+        indicator.stop()
     }
+    
 
 }
 
@@ -253,10 +279,13 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
         switch (type) {
         case .insert:
             insertedIndexPaths.append(newIndexPath!)
+            print("insert indexPath called")
         case .delete:
             deletedIndexPaths.append(indexPath!)
+            print("delete indexPath called")
         case .update:
             updatedIndexPaths.append(indexPath!)
+            print("update indexPath called")
         default:
             break
         }

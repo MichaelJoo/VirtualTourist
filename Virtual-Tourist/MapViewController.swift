@@ -304,8 +304,13 @@ extension MapViewController: CLLocationManagerDelegate {
         if newState == MKAnnotationView.DragState.ending && newState ==  MKAnnotationView.DragState.canceling {
             
             view.dragState = MKAnnotationView.DragState.none
+            let droppedAt = view.annotation!.coordinate
+            print(droppedAt)
+            print("new cordinate upon drop assigned")
             
         }
+        
+        print("didChange State function called")
         
     }
     
@@ -313,8 +318,10 @@ extension MapViewController: CLLocationManagerDelegate {
         switch (newState) {
         case .starting:
             view.dragState = .dragging
+            print("dragging started")
         case .ending, .canceling:
             view.dragState = .none
+            print("dragstate ending started")
         default: break
         }
     }
@@ -342,15 +349,8 @@ extension MapViewController: CLLocationManagerDelegate {
         //A fault is a placeholder object that represents a managed object that has not yet been fully realized, or a collection object that represents a relationship:
         
         //None of the photos added to the pin has been realized due to "fault". It is unclear why the photos were still "unrealized in PhotoAlbumViewController" because one of its property, imageURL has been accessed to populate collection View cell. 
-    
-
 
     }
     
-    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-        
-        
-    }
-
 }
 
