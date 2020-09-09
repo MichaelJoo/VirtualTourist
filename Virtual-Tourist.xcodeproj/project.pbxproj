@@ -14,6 +14,7 @@
 		8F45941724BE57F200BA66BF /* VirtualTouristClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F45941624BE57F200BA66BF /* VirtualTouristClient.swift */; };
 		8F511C3524DFA6AA003B7C29 /* CustomLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F511C3424DFA6AA003B7C29 /* CustomLayout.swift */; };
 		8F64FA1424CE16C800AA6736 /* PhotoCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F64FA1324CE16C800AA6736 /* PhotoCell.swift */; };
+		8F7950592507E038002B8D0F /* ActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F7950582507E038002B8D0F /* ActivityIndicator.swift */; };
 		8FAD9B8424C39CD600EBE857 /* ProjectMileStones in Resources */ = {isa = PBXBuildFile; fileRef = 8FAD9B8324C39CD600EBE857 /* ProjectMileStones */; };
 		8FAD9B8624C47D9F00EBE857 /* VirtualTouristResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FAD9B8524C47D9F00EBE857 /* VirtualTouristResponse.swift */; };
 		8FAD9B8F24C4856500EBE857 /* VirtualTouristRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FAD9B8E24C4856500EBE857 /* VirtualTouristRequest.swift */; };
@@ -53,6 +54,7 @@
 		8F45941624BE57F200BA66BF /* VirtualTouristClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualTouristClient.swift; sourceTree = "<group>"; };
 		8F511C3424DFA6AA003B7C29 /* CustomLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomLayout.swift; sourceTree = "<group>"; };
 		8F64FA1324CE16C800AA6736 /* PhotoCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCell.swift; sourceTree = "<group>"; };
+		8F7950582507E038002B8D0F /* ActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityIndicator.swift; sourceTree = "<group>"; };
 		8FAD9B8324C39CD600EBE857 /* ProjectMileStones */ = {isa = PBXFileReference; lastKnownFileType = text; path = ProjectMileStones; sourceTree = "<group>"; };
 		8FAD9B8524C47D9F00EBE857 /* VirtualTouristResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualTouristResponse.swift; sourceTree = "<group>"; };
 		8FAD9B8E24C4856500EBE857 /* VirtualTouristRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualTouristRequest.swift; sourceTree = "<group>"; };
@@ -163,6 +165,7 @@
 				8FF37C1B249542F200594F13 /* SceneDelegate.swift */,
 				8FF37C1D249542F200594F13 /* MapViewController.swift */,
 				8F3B971724CCF74B002E2308 /* PhotoAlbumViewController.swift */,
+				8F7950582507E038002B8D0F /* ActivityIndicator.swift */,
 				8F511C3424DFA6AA003B7C29 /* CustomLayout.swift */,
 				8F64FA1324CE16C800AA6736 /* PhotoCell.swift */,
 				8F32E6FD24B2261B00C9207B /* DataController.swift */,
@@ -330,6 +333,7 @@
 				8F32E6FE24B2261B00C9207B /* DataController.swift in Sources */,
 				8FAD9B8F24C4856500EBE857 /* VirtualTouristRequest.swift in Sources */,
 				8F3B971824CCF74B002E2308 /* PhotoAlbumViewController.swift in Sources */,
+				8F7950592507E038002B8D0F /* ActivityIndicator.swift in Sources */,
 				8F45941724BE57F200BA66BF /* VirtualTouristClient.swift in Sources */,
 				8FAD9B8624C47D9F00EBE857 /* VirtualTouristResponse.swift in Sources */,
 				8F511C3524DFA6AA003B7C29 /* CustomLayout.swift in Sources */,
