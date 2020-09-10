@@ -162,13 +162,12 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         let annotation = MKPointAnnotation()
         annotation.coordinate = coordinate
         mapView.addAnnotation(annotation)
-            
-        
+
         //Add annotation to Pin Data model
         addPin(annotation: annotation)
             
         findAddress(annotation: annotation)
-        
+        print("line 170")
         }
         
     }
@@ -179,20 +178,22 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         let locationforAdress = CLLocation(latitude: annotation.coordinate.latitude, longitude: annotation.coordinate.longitude)
         
         geoCoder.reverseGeocodeLocation(locationforAdress, completionHandler: { (placemarks, error) -> Void in
-        
-            if (error) == nil {
-
-                // Place details
-                var placeMark: CLPlacemark!
-                placeMark = placemarks?[0]
-                
-                let address = "\(placeMark?.country ?? ""),\(placeMark?.subAdministrativeArea ?? ""), \(placeMark?.thoroughfare ?? ""), \(placeMark?.postalCode ?? "")"
-                
-                annotation.title = address
-                
-                }
+            
+                if (error) == nil {
+                    
+                    DispatchQueue.main.async {
+                        
+                        // Place details
+                        var placeMark: CLPlacemark!
+                        placeMark = placemarks?[0]
+                        
+                        let address = "\(placeMark?.country ?? ""),\(placeMark?.subAdministrativeArea ?? ""), \(placeMark?.thoroughfare ?? ""), \(placeMark?.postalCode ?? "")"
+                        annotation.title = address
+                    
+                    }
             }
-        )
+
+        })
     }
     
     func addPin(annotation: MKPointAnnotation) {
@@ -301,16 +302,26 @@ extension MapViewController: CLLocationManagerDelegate {
     
     func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, didChange newState: MKAnnotationView.DragState, fromOldState oldState: MKAnnotationView.DragState) {
         
-        if newState == MKAnnotationView.DragState.ending && newState ==  MKAnnotationView.DragState.canceling {
+        if newState == MKAnnotationView.DragState.ending || newState ==  MKAnnotationView.DragState.canceling {
             
             view.dragState = MKAnnotationView.DragState.none
-            let droppedAt = view.annotation!.coordinate
-            print(droppedAt)
-            print("new cordinate upon drop assigned")
+
+            let annotation = MKPointAnnotation()
+            annotation.coordinate = view.annotation!.coordinate
+            findAddress(annotation: annotation)
+            
+            let pinData = Pin(context: DataController.shared.viewContext)
+            
+            pinData.title = annotation.title
+            pinData.subtitle = annotation.subtitle
+            pinData.latitude = annotation.coordinate.latitude
+            pinData.longitude = annotation.coordinate.longitude
+            pinData.creationDate = Date()
+            
+            try? DataController.shared.viewContext.save()
+            print(pinData.self)
             
         }
-        
-        print("didChange State function called")
         
     }
     
