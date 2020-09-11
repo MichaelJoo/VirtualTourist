@@ -166,22 +166,33 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
         //Add annotation to Pin Data model
         addPin(annotation: annotation)
             
-        findAddress(annotation: annotation)
-        print("line 170")
+        findAddress(annotation: annotation) { (String) in
+               
+            let pinData = Pin(context: DataController.shared.viewContext)
+                            
+                    pinData.title = annotation.title
+                    pinData.subtitle = annotation.subtitle
+                    pinData.latitude = annotation.coordinate.latitude
+                    pinData.longitude = annotation.coordinate.longitude
+                    pinData.creationDate = Date()
+                            
+                    try? DataController.shared.viewContext.save()
+                    print("findaddress executed")
+                    print(pinData.self)
+            
+            }
         }
         
     }
     
 
-    func findAddress(annotation: MKPointAnnotation) {
+    func findAddress(annotation: MKPointAnnotation, completionHandler: @escaping (String) -> Void) {
         
         let locationforAdress = CLLocation(latitude: annotation.coordinate.latitude, longitude: annotation.coordinate.longitude)
         
         geoCoder.reverseGeocodeLocation(locationforAdress, completionHandler: { (placemarks, error) -> Void in
             
                 if (error) == nil {
-                    
-                    DispatchQueue.main.async {
                         
                         // Place details
                         var placeMark: CLPlacemark!
@@ -189,11 +200,14 @@ class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognize
                         
                         let address = "\(placeMark?.country ?? ""),\(placeMark?.subAdministrativeArea ?? ""), \(placeMark?.thoroughfare ?? ""), \(placeMark?.postalCode ?? "")"
                         annotation.title = address
+                
+                completionHandler(address)
                     
-                    }
             }
-
+            
         })
+        
+        
     }
     
     func addPin(annotation: MKPointAnnotation) {
@@ -287,7 +301,7 @@ extension MapViewController: CLLocationManagerDelegate {
             pinView!.isDraggable = true
             pinView!.canShowCallout = true
             pinView!.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
-        
+
             
         } else {
             
@@ -308,19 +322,22 @@ extension MapViewController: CLLocationManagerDelegate {
 
             let annotation = MKPointAnnotation()
             annotation.coordinate = view.annotation!.coordinate
-            findAddress(annotation: annotation)
             
-            let pinData = Pin(context: DataController.shared.viewContext)
-            
-            pinData.title = annotation.title
-            pinData.subtitle = annotation.subtitle
-            pinData.latitude = annotation.coordinate.latitude
-            pinData.longitude = annotation.coordinate.longitude
-            pinData.creationDate = Date()
-            
-            try? DataController.shared.viewContext.save()
-            print(pinData.self)
-            
+            findAddress(annotation: annotation) { (String) in
+                
+                let pinData = Pin(context: DataController.shared.viewContext)
+                                
+                        pinData.title = annotation.title
+                        pinData.subtitle = annotation.subtitle
+                        pinData.latitude = annotation.coordinate.latitude
+                        pinData.longitude = annotation.coordinate.longitude
+                        pinData.creationDate = Date()
+                                
+                        try? DataController.shared.viewContext.save()
+                        print(pinData.self)
+                
+            }
+        
         }
         
     }
