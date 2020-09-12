@@ -319,25 +319,30 @@ extension MapViewController: CLLocationManagerDelegate {
         if newState == MKAnnotationView.DragState.ending || newState ==  MKAnnotationView.DragState.canceling {
             
             view.dragState = MKAnnotationView.DragState.none
-
-            let annotation = MKPointAnnotation()
-            annotation.coordinate = view.annotation!.coordinate
             
-            findAddress(annotation: annotation) { (String) in
+            let newAnnotation = MKPointAnnotation()
+            newAnnotation.coordinate = view.annotation!.coordinate
+            mapView.removeAnnotation(view.annotation!)
+            
+            findAddress(annotation: newAnnotation) { (String) in
                 
                 let pinData = Pin(context: DataController.shared.viewContext)
                                 
-                        pinData.title = annotation.title
-                        pinData.subtitle = annotation.subtitle
-                        pinData.latitude = annotation.coordinate.latitude
-                        pinData.longitude = annotation.coordinate.longitude
+                        pinData.title = newAnnotation.title
+                        pinData.subtitle = newAnnotation.subtitle
+                        pinData.latitude = newAnnotation.coordinate.latitude
+                        pinData.longitude = newAnnotation.coordinate.longitude
                         pinData.creationDate = Date()
                                 
                         try? DataController.shared.viewContext.save()
+                        mapView.addAnnotation(newAnnotation)
                         print(pinData.self)
                 
+                self.addPhotos(Pin: pinData, longitude: pinData.longitude, latitude: pinData.latitude)
+                
             }
-        
+            
+
         }
         
     }

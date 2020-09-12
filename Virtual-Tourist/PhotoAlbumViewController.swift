@@ -208,11 +208,12 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
+        self.indicator!.start()
+        
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath) as! PhotoCell
         
         let photoForCells = fetchedResultsController.object(at: indexPath)
 
-        self.indicator!.start()
         
         DispatchQueue.main.async {
         
