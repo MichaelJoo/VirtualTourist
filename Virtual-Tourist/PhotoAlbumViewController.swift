@@ -11,7 +11,7 @@ import UIKit
 import MapKit
 import CoreData
 
-class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource {
+final class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource {
     
     var pinData: Pin!
     var indicator: ActivtyIndicator!
@@ -75,10 +75,9 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
         }
         DataController.shared.autoSaveViewContext()
         
-        indicator = ActivtyIndicator(inview:self.view,loadingViewColor: UIColor.gray, indicatorColor: UIColor.black, msg: "Refreshing")
-        self.photoCollectionView.addSubview(indicator!)
+        changeActivityIndicatorMessage(message: "refreshing")
         
-       addPhotos(Pin: pinData, longitude: pinData.longitude, latitude: pinData.latitude)
+        addPhotos(Pin: pinData, longitude: pinData.longitude, latitude: pinData.latitude)
         
     }
     
@@ -94,18 +93,11 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
         photoMapView.delegate = self
         photoCollectionView.delegate = self
         photoCollectionView.dataSource = self
+        
+        createPinInMapView()
+        
+        changeActivityIndicatorMessage(message: "Downloading")
       
-        
-        let annotation = MKPointAnnotation()
-        annotation.coordinate = CLLocationCoordinate2D(latitude: pinData.latitude, longitude: pinData.longitude)
-        photoMapView.addAnnotation(annotation)
-        
-        //indicator = ProgressIndicator(inview: self.view,messsage: "Hello from Nepal..")
-            //self.view.addSubview(indicator!)
-            //OR
-        indicator = ActivtyIndicator(inview:self.view,loadingViewColor: UIColor.gray, indicatorColor: UIColor.black, msg: "Downloading")
-            self.view.addSubview(indicator!)
-     
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -123,6 +115,21 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
         fetchedResultsController = nil
         
 
+    }
+    
+    func changeActivityIndicatorMessage (message: String) {
+        
+        indicator = ActivtyIndicator(inview:self.view,loadingViewColor: UIColor.gray, indicatorColor: UIColor.black, msg: message)
+            self.view.addSubview(indicator!)
+        
+    }
+    
+    func createPinInMapView() {
+        
+        let annotation = MKPointAnnotation()
+        annotation.coordinate = CLLocationCoordinate2D(latitude: pinData.latitude, longitude: pinData.longitude)
+        photoMapView.addAnnotation(annotation)
+        
     }
     
     func addPhotos (Pin: Pin, longitude: Double, latitude: Double) {
@@ -159,37 +166,9 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
                 
             }
         }
-        
-        
+  
     }
-    
-    
-    func setupCollectionViewLayout() {
-        let layout = UICollectionViewFlowLayout()
 
-        // Always use an item count of at least 1 and convert it to a float to use in size calculations
-        let numberOfItemsPerRow: Int = 3
-        let itemsPerRow = CGFloat(max(numberOfItemsPerRow,1))
-        
-        // Calculate the sum of the spacing between cells
-        let totalSpacing = layout.minimumInteritemSpacing * (itemsPerRow - 1.0)
-        
-        // Calculate how wide items should be
-        var newItemSize = layout.itemSize
-        
-        newItemSize.width = (photoCollectionView.bounds.size.width - layout.sectionInset.left - layout.sectionInset.right - totalSpacing) / itemsPerRow
-        
-        // Use the aspect ratio of the current item size to determine how tall the items should be
-        if layout.itemSize.height > 0 {
-            let itemAspectRatio = layout.itemSize.width / layout.itemSize.height
-            newItemSize.height = newItemSize.width / itemAspectRatio
-        }
-        
-        layout.itemSize = newItemSize
-      
-        photoCollectionView.collectionViewLayout = layout
-    }
-    
     
     func numberOfSectionsInCollectionView(collectionView: UICollectionView) -> Int {
         
@@ -240,8 +219,7 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-        indicator = ActivtyIndicator(inview:self.view,loadingViewColor: UIColor.gray, indicatorColor: UIColor.black, msg: "Deleting")
-        self.photoCollectionView.addSubview(indicator!)
+        changeActivityIndicatorMessage(message: "Deleting")
         
         indicator.start()
         
@@ -250,9 +228,39 @@ class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate, UICo
         
         indicator.stop()
     }
-    
 
 }
+
+extension PhotoAlbumViewController {
+        
+        func setupCollectionViewLayout() {
+            let layout = UICollectionViewFlowLayout()
+
+            // Always use an item count of at least 1 and convert it to a float to use in size calculations
+            let numberOfItemsPerRow: Int = 3
+            let itemsPerRow = CGFloat(max(numberOfItemsPerRow,1))
+            
+            // Calculate the sum of the spacing between cells
+            let totalSpacing = layout.minimumInteritemSpacing * (itemsPerRow - 1.0)
+            
+            // Calculate how wide items should be
+            var newItemSize = layout.itemSize
+            
+            newItemSize.width = (photoCollectionView.bounds.size.width - layout.sectionInset.left - layout.sectionInset.right - totalSpacing) / itemsPerRow
+            
+            // Use the aspect ratio of the current item size to determine how tall the items should be
+            if layout.itemSize.height > 0 {
+                let itemAspectRatio = layout.itemSize.width / layout.itemSize.height
+                newItemSize.height = newItemSize.width / itemAspectRatio
+            }
+            
+            layout.itemSize = newItemSize
+          
+            photoCollectionView.collectionViewLayout = layout
+        }
+        
+}
+
 
 extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
     

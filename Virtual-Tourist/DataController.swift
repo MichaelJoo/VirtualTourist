@@ -9,7 +9,7 @@
 import Foundation
 import CoreData
 
-class DataController {
+final class DataController {
     
     static let shared = DataController(modelName: "Virtual_Tourist")
     

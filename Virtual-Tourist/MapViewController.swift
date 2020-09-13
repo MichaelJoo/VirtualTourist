@@ -13,7 +13,7 @@ import CoreLocation
 import CoreData
 
 
-class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDelegate, NSFetchedResultsControllerDelegate {
+final class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDelegate, NSFetchedResultsControllerDelegate {
 
     
     @IBOutlet weak var mapView: MKMapView!

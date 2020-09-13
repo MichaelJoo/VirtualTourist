@@ -8,7 +8,7 @@
 
 import UIKit
 import Foundation
-class ActivtyIndicator: UIView {
+final class ActivtyIndicator: UIView {
 
 var indicatorColor:UIColor
 var loadingViewColor:UIColor

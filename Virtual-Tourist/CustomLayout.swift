@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 
-class CustomLayout: UICollectionViewFlowLayout {
+final class CustomLayout: UICollectionViewFlowLayout {
     
     var numberOfItemsPerRow: Int = 3 {
         didSet {
