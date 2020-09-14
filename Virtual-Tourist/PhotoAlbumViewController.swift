@@ -73,11 +73,14 @@ final class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate
         for obj in objects!.reversed() {
             DataController.shared.viewContext.delete(obj)
         }
-        DataController.shared.autoSaveViewContext()
         
+        DataController.shared.autoSaveViewContext()
+       
         changeActivityIndicatorMessage(message: "refreshing")
         
         addPhotos(Pin: pinData, longitude: pinData.longitude, latitude: pinData.latitude)
+        
+        print("new collection button action completed")
         
     }
     
@@ -95,8 +98,6 @@ final class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate
         photoCollectionView.dataSource = self
         
         createPinInMapView()
-        
-        changeActivityIndicatorMessage(message: "Downloading")
       
     }
     
@@ -134,6 +135,7 @@ final class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate
     
     func addPhotos (Pin: Pin, longitude: Double, latitude: Double) {
         
+        self.indicator!.start()
         
         VirtualTouristClient.SearchPhoto(longitude: longitude, Latitude: latitude) { (photo, error) in
             
@@ -156,12 +158,20 @@ final class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate
 
                 photoData.pin = Pin
                 photoData.creationDate = Pin.creationDate
-                photoData.imageURL = flickerImageURLAddress
+                    
+                DispatchQueue.main.async {
                 
-                print(photoData)
+                    if let data = try? Data(contentsOf: flickerImageURLAddress) {
+                            print("activity indicator called")
+                            
+                        photoData.image = data
+                        print(photoData.image)
+                        self.indicator!.stop()
+                    }
+            
+                }
               
                 }
-    
                 try? DataController.shared.viewContext.save()
                 
             }
@@ -179,7 +189,7 @@ final class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
-        guard let sections = fetchedResultsController.sections else {return 0 }
+        guard let sections = fetchedResultsController.sections else { return 0 }
         
         return sections[section].numberOfObjects
             
@@ -187,32 +197,22 @@ final class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
-        self.indicator!.start()
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath) as! PhotoCell
         
         let photoForCells = fetchedResultsController.object(at: indexPath)
+        
+        cell.photoImageView.image = UIImage(data: photoForCells.image!)
+        cell.photoImageView.contentMode = UIView.ContentMode.scaleAspectFill
 
-        
-        DispatchQueue.main.async {
-        
-            if let data = try? Data(contentsOf: photoForCells.imageURL!) {
-                    print("activity indicator called")
-                    cell.photoImageView.image = UIImage(data: data)
-                    cell.photoImageView.contentMode = UIView.ContentMode.scaleAspectFill
-                    self.indicator!.stop()
-            }
-        }
-  
         //image size issue is solved by using "CustomLayout" which can be a boilerplate
         //cell.photoImageView.clipsToBounds = true
         //cell.photoImageView.translatesAutoresizingMaskIntoConstraints = true
         //cell.photoImageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         
         cell.backgroundColor = .white
-        
-        
-        
+        try? DataController.shared.viewContext.save()
+  
         return cell
         
     }

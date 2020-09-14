@@ -19,6 +19,8 @@ final class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRec
     @IBOutlet weak var mapView: MKMapView!
     
     var fetchedResultsController: NSFetchedResultsController<Pin>!
+    
+    var indicator: ActivtyIndicator!
 
     let locationManager = CLLocationManager()
     let geoCoder = CLGeocoder()
@@ -82,6 +84,7 @@ final class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRec
         checkLocationServices()
         setupFetchedResultsController()
         
+        changeActivityIndicatorMessage(message: "Downloading")
         
     }
     
@@ -94,6 +97,13 @@ final class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRec
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
+    }
+    
+    func changeActivityIndicatorMessage (message: String) {
+        
+        indicator = ActivtyIndicator(inview:self.view,loadingViewColor: UIColor.gray, indicatorColor: UIColor.black, msg: message)
+            self.view.addSubview(indicator!)
+        
     }
     
     func setupLocationManager() {
@@ -227,11 +237,12 @@ final class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRec
         print(pinData.self)
         
         addPhotos(Pin: pinData, longitude: pinData.longitude, latitude: pinData.latitude)
-    
+        
     }
     
     func addPhotos (Pin: Pin, longitude: Double, latitude: Double) {
         
+        self.indicator!.start()
         
         VirtualTouristClient.SearchPhoto(longitude: longitude, Latitude: latitude) { (photo, error) in
             
@@ -254,16 +265,24 @@ final class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRec
 
                 photoData.pin = Pin
                 photoData.creationDate = Pin.creationDate
-                photoData.imageURL = flickerImageURLAddress
-                    
-                try? DataController.shared.viewContext.save()
-                    
                 
+                DispatchQueue.main.async {
+                
+                    if let data = try? Data(contentsOf: flickerImageURLAddress) {
+                            print("activity indicator called")
+                            
+                        photoData.image = data
+                        print(photoData.image)
+                        self.indicator!.stop()
+
+                    }
+ 
                 }
-                
+                print(photoData)
+                try? DataController.shared.viewContext.save()
+                }
             }
         }
-        
     }
 
 }
