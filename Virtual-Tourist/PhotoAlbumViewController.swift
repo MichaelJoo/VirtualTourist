@@ -158,10 +158,8 @@ final class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate
 
                 photoData.pin = Pin
                 photoData.creationDate = Pin.creationDate
-                    
-                DispatchQueue.main.async {
-                
-                    if let data = try? Data(contentsOf: flickerImageURLAddress) {
+                           
+                if let data = try? Data(contentsOf: flickerImageURLAddress) {
                             print("activity indicator called")
                             
                         photoData.image = data
@@ -169,8 +167,6 @@ final class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate
                         self.indicator!.stop()
                     }
             
-                }
-              
                 }
                 try? DataController.shared.viewContext.save()
                 

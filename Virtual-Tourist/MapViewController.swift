@@ -265,19 +265,15 @@ final class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRec
 
                 photoData.pin = Pin
                 photoData.creationDate = Pin.creationDate
-                
-                DispatchQueue.main.async {
-                
-                    if let data = try? Data(contentsOf: flickerImageURLAddress) {
+ 
+                if let data = try? Data(contentsOf: flickerImageURLAddress) {
                             print("activity indicator called")
                             
                         photoData.image = data
                         print(photoData.image)
                         self.indicator!.stop()
-
                     }
- 
-                }
+
                 print(photoData)
                 try? DataController.shared.viewContext.save()
                 }
