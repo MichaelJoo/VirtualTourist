@@ -85,14 +85,14 @@ class VirtualTouristClient {
     
     class func SearchPhoto (longitude: Double, Latitude: Double, _ completion: @escaping ([Images], Error?) -> Void) {
         
-        let ApiURLAddress = Endpoints.Base.StringValue + Endpoints.SearchFlickerPhotos.StringValue + "&api_key=\(SearchPhotoRequest.api_key)" + "&lat=\(Latitude)" + "&lon=\(longitude)" + "&page=3&per_page=30&format=json&nojsoncallback=1"
+        let apiURLAddress = Endpoints.Base.StringValue + Endpoints.SearchFlickerPhotos.StringValue + "&api_key=\(SearchPhotoRequest.api_key)" + "&lat=\(Latitude)" + "&lon=\(longitude)" + "&page=3&per_page=30&format=json&nojsoncallback=1"
         
-        let SearchURL = URL(string:ApiURLAddress)!
+        let searchURL = URL(string:apiURLAddress)!
         
-        let SearchRequest = SearchPhotoRequest(lat: Latitude, lon: longitude)
+        let searchRequest = SearchPhotoRequest(lat: Latitude, lon: longitude)
         
 
-        taskforFlickerPOSTRequest(url: SearchURL, responseType: SearchPhotoResponse.self, body: SearchRequest) { response, error in
+        taskforFlickerPOSTRequest(url: searchURL, responseType: SearchPhotoResponse.self, body: searchRequest) { response, error in
             
             if error == nil {
                 completion((response?.photos.photo)!, nil)
