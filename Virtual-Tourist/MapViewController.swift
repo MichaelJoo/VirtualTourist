@@ -95,10 +95,6 @@ final class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRec
 
     }
     
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-    }
-    
     func changeActivityIndicatorMessage (message: String) {
         
         indicator = ActivtyIndicator(inview:self.view,loadingViewColor: UIColor.gray, indicatorColor: UIColor.black, msg: message)
@@ -270,7 +266,7 @@ final class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRec
                             print("activity indicator called")
                             
                         photoData.image = data
-                        print(photoData.image)
+                        print(photoData.image!)
                         self.indicator!.stop()
                     }
 
@@ -280,7 +276,6 @@ final class MapViewController: UIViewController, MKMapViewDelegate, UIGestureRec
             }
         }
     }
-
 }
 
 extension MapViewController: CLLocationManagerDelegate {

@@ -163,7 +163,7 @@ final class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate
                             print("activity indicator called")
                             
                         photoData.image = data
-                        print(photoData.image)
+                        print(photoData.image!)
                         self.indicator!.stop()
                     }
             
@@ -201,11 +201,6 @@ final class PhotoAlbumViewController: UIViewController, UICollectionViewDelegate
         cell.photoImageView.image = UIImage(data: photoForCells.image!)
         cell.photoImageView.contentMode = UIView.ContentMode.scaleAspectFill
 
-        //image size issue is solved by using "CustomLayout" which can be a boilerplate
-        //cell.photoImageView.clipsToBounds = true
-        //cell.photoImageView.translatesAutoresizingMaskIntoConstraints = true
-        //cell.photoImageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        
         cell.backgroundColor = .white
         try? DataController.shared.viewContext.save()
   
